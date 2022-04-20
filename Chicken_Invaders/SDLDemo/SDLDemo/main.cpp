@@ -1,9 +1,11 @@
 #include"CommonFunction.h"
 #include"BaseObject.h"
+#include"SpaceObject.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 baseobject background;
+spaceobject space;
 
 bool init()
 {
@@ -64,6 +66,11 @@ int  main(int arv,char* argv[])
 		{
 			return 0;
 		}
+		if (!space.LoadImage("rocket.png", renderer))
+		{
+			std::cout << "sdfgsdgrg";
+			return 0;
+		}
 		else
 		{
 			background.SetRect(0,run);
@@ -77,6 +84,7 @@ int  main(int arv,char* argv[])
 					{
 						quit = true;
 					}
+					else space.InputAction(e);
 				}
 
 				SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 0xff);
@@ -84,10 +92,10 @@ int  main(int arv,char* argv[])
 
 				if (is_run)
 				{
-					run += 40;
+					run += 3;
 					background.SetRect(0, run);
 					background.Render(renderer);
-					if (run >= 0)
+					if (run+3 >= 0)
 					{
 						is_run = false;
 					}
@@ -96,6 +104,9 @@ int  main(int arv,char* argv[])
 					{
 						background.Render(renderer);
 					}
+
+				space.Move();
+				space.Show(renderer);
 				SDL_RenderPresent(renderer);
 			}
 		}

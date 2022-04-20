@@ -24,12 +24,18 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="spaceobject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonFunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BaseObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
