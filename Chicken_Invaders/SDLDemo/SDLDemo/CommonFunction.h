@@ -14,6 +14,13 @@ const int WINDOW_HEIGHT = 800;
 
 const int SCREEN_WIDTH = 800;
 
+enum Bullet_Level
+{
+	BLASTER,
+	NEUTRON,
+	LASER
+};
+
 
 
 #endif

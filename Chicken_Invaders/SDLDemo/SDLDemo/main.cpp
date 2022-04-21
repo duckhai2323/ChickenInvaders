@@ -1,6 +1,7 @@
 #include"CommonFunction.h"
 #include"BaseObject.h"
 #include"SpaceObject.h"
+#include"BulletObject.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -68,7 +69,6 @@ int  main(int arv,char* argv[])
 		}
 		if (!space.LoadImage("rocket.png", renderer))
 		{
-			std::cout << "sdfgsdgrg";
 			return 0;
 		}
 		else
@@ -84,7 +84,7 @@ int  main(int arv,char* argv[])
 					{
 						quit = true;
 					}
-					else space.InputAction(e);
+					else space.InputAction(e,renderer,0);
 				}
 
 				SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 0xff);
@@ -107,6 +107,8 @@ int  main(int arv,char* argv[])
 
 				space.Move();
 				space.Show(renderer);
+
+				space.HandleBullet(renderer);
 				SDL_RenderPresent(renderer);
 			}
 		}

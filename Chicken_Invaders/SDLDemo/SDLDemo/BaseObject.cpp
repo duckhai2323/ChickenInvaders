@@ -20,7 +20,7 @@ bool baseobject::LoadImage(std::string path,SDL_Renderer* renderer)
     SDL_Texture* newTexture = NULL;
     SDL_Surface* loadSurface = IMG_Load(path.c_str());
     if (loadSurface != NULL) {
-        SDL_SetColorKey(loadSurface, SDL_TRUE, SDL_MapRGB(loadSurface->format,0, 0xff, 0xff));
+        SDL_SetColorKey(loadSurface, SDL_TRUE, SDL_MapRGB(loadSurface->format,170, 170, 170));
         newTexture = SDL_CreateTextureFromSurface(renderer, loadSurface);
         if (newTexture != NULL) {
             rect_.w = loadSurface->w;
