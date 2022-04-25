@@ -10,6 +10,7 @@ SDL_Renderer* renderer = NULL;
 baseobject background;
 spaceobject space;
 TTF_Font* font = NULL;
+textobject textTime;
 
 bool init()
 {
@@ -82,6 +83,7 @@ int  main(int arv,char* argv[])
 	int run = -(SCREEN_WIDTH*5);
 	bool is_run = true;
 	int bullet_level = 0;
+	textTime.SetTextColor(textobject::WHILE_TYPE);
 	if (!init())
 	{
 		return 0;
@@ -138,8 +140,15 @@ int  main(int arv,char* argv[])
 
 				space.Move();
 				space.Show(renderer);
+                space.HandleBullet(renderer);
 
-				space.HandleBullet(renderer);
+				std::string text_time = "Time : ";
+				Uint32 time = SDL_GetTicks() / 1000;
+				std::string time_ = std::to_string(time);
+				text_time += time_;
+				textTime.SetText(text_time);
+				textTime.SetRect(1000, 10);
+				textTime.ShowText(font, renderer);
 				SDL_RenderPresent(renderer);
 			}
 		}

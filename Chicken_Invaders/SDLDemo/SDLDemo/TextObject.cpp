@@ -35,7 +35,7 @@ void textobject::ShowText(TTF_Font* font, SDL_Renderer* renderer)
 	SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), text_color);
 	if (surface != NULL)
 	{
-		SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 170, 170, 170));
+		//SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 170, 170, 170));
 		b_object = SDL_CreateTextureFromSurface(renderer, surface);
 		rect_.w = surface->w;
 		rect_.h = surface->h;
