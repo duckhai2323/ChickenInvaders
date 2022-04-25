@@ -21,6 +21,8 @@ enum Bullet_Level
 	LASER
 };
 
+const int LEVEL_UP = 3;
+
 
 
 #endif

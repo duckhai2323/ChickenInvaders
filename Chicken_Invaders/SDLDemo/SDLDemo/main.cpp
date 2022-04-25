@@ -2,11 +2,14 @@
 #include"BaseObject.h"
 #include"SpaceObject.h"
 #include"BulletObject.h"
+#include"GiftObject.h"
+#include"TextObject.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 baseobject background;
 spaceobject space;
+TTF_Font* font = NULL;
 
 bool init()
 {
@@ -36,10 +39,32 @@ bool init()
 				{
 					return 0;
 				}
+
+				if (TTF_Init() == -1)
+				{
+					return false;
+				}
 			}
 		}
 	}
 	return 1;
+}
+
+bool check_collision(const SDL_Rect& object1, const SDL_Rect& object2) {
+	int left_a = object1.x;
+	int right_a = object1.x + object1.w;
+	int top_a = object1.y;
+	int bottom_a = object1.y + object1.h;
+
+	int left_b = object2.x;
+	int right_b = object2.x + object2.w;
+	int top_b = object2.y;
+	int bottom_b = object2.y + object2.h;
+
+	if (left_a > right_b || right_a < left_b || top_a > bottom_b || bottom_a < top_b) {
+		return false;
+	}
+	return true;
 }
 
 void close()
@@ -56,13 +81,19 @@ int  main(int arv,char* argv[])
 {
 	int run = -(SCREEN_WIDTH*5);
 	bool is_run = true;
-
+	int bullet_level = 0;
 	if (!init())
 	{
 		return 0;
 	}
 	else
 	{
+		font = TTF_OpenFont("font1.ttf", 30);
+		if (font == NULL)
+		{
+			std::cout << "Failed to load Font";
+			return 0;
+		}
 		if (!background.LoadImage("background6.png", renderer))
 		{
 			return 0;
@@ -84,7 +115,7 @@ int  main(int arv,char* argv[])
 					{
 						quit = true;
 					}
-					else space.InputAction(e,renderer,0);
+					else space.InputAction(e,renderer,bullet_level);
 				}
 
 				SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 0xff);
