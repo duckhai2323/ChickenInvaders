@@ -167,13 +167,16 @@ int  main(int arv,char* argv[])
 			menu();
 			int xm = 0;
 			int ym = 0;
-			SDL_GetMouseState(&xm, &ym);
+			//SDL_GetMouseState(&xm, &ym);
 			bool menu_Run = true;
 			SDL_Event e_menu;
 			while (menu_Run)
 			{
 				if (menu_num == 0)
 				{
+					text_item[0].ShowText(font_menu, renderer);
+					text_item[1].ShowText(font_menu, renderer);
+					text_item[2].ShowText(font_menu, renderer);
 					menu0.Render(renderer);
 					text_item[0].Render(renderer);
 					text_item[1].Render(renderer);
@@ -182,6 +185,7 @@ int  main(int arv,char* argv[])
 				else if (menu_num == 1)
 				{
 					menu1.Render(renderer);
+					text_item[3].ShowText(font_menu, renderer);
 					text_item[3].Render(renderer);
 				}
 				while (SDL_PollEvent(&e_menu)!=0)
@@ -193,7 +197,7 @@ int  main(int arv,char* argv[])
 					}
 					else if (e_menu.type == SDL_MOUSEMOTION)
 					{
-						//SDL_GetMouseState(&xm, &ym);
+						SDL_GetMouseState(&xm, &ym);
 						for (int t = 0; t < num_item; t++)
 						{
 							if (check_mouse_item(xm, ym, text_item[t].GetRect()))
