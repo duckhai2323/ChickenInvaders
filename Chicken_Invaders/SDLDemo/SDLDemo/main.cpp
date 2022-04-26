@@ -12,6 +12,15 @@ spaceobject space;
 TTF_Font* font = NULL;
 textobject textTime;
 
+// Menu
+baseobject menu0;
+baseobject menu1;
+TTF_Font* font_menu = NULL;
+ int menu_num = 0;
+const int num_item = 4;
+SDL_Rect poss_item[num_item];
+textobject text_item[num_item];
+
 bool init()
 {
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0)
@@ -68,6 +77,58 @@ bool check_collision(const SDL_Rect& object1, const SDL_Rect& object2) {
 	return true;
 }
 
+bool check_mouse_item(const int& x, const int& y, const SDL_Rect& rect)
+{
+	if (rect.x <= x && x <= rect.x + rect.w && y >= rect.y && y <= rect.y + rect.h)
+	{
+		return true;
+	}
+	return false;
+}
+
+void menu()
+{
+	if (!menu0.LoadImage("menu0.png", renderer))
+	{
+		return;
+	}
+	if (!menu1.LoadImage("menu1.png", renderer))
+	{
+		return;
+	}
+
+
+	text_item[0].SetText("Start");
+	text_item[0].SetTextColor(textobject::BLACK_TYPE);
+	text_item[0].ShowText(font_menu, renderer);
+	poss_item[0].x = WINDOW_WIDTH / 2 - text_item[0].GetRect().w / 2;
+	poss_item[0].y = WINDOW_HEIGHT - 250;
+	text_item[0].SetRect(poss_item[0].x, poss_item[0].y);
+
+	text_item[1].SetText("Information");
+	text_item[1].SetTextColor(textobject::BLACK_TYPE);
+	text_item[1].ShowText(font_menu, renderer);
+	poss_item[1].x = WINDOW_WIDTH / 2 - text_item[1].GetRect().w / 2;
+	poss_item[1].y = WINDOW_HEIGHT - 170;
+	text_item[1].SetRect(poss_item[1].x, poss_item[1].y);
+
+	text_item[2].SetText("Exit !");
+	text_item[2].SetTextColor(textobject::BLACK_TYPE);
+	text_item[2].ShowText(font_menu, renderer);
+	poss_item[2].x = WINDOW_WIDTH / 2 - text_item[2].GetRect().w / 2;
+	poss_item[2].y = WINDOW_HEIGHT - 90;
+	text_item[2].SetRect(poss_item[2].x, poss_item[2].y);
+
+	text_item[3].SetText("Back !");
+	text_item[3].SetTextColor(textobject::BLACK_TYPE);
+	text_item[3].ShowText(font_menu, renderer);
+	poss_item[3].x = 10;
+	poss_item[3].y = 10;
+	text_item[3].SetRect(poss_item[3].x, poss_item[3].y);
+
+
+}
+
 void close()
 {
 	SDL_DestroyWindow(window);
@@ -91,11 +152,7 @@ int  main(int arv,char* argv[])
 	else
 	{
 		font = TTF_OpenFont("font1.ttf", 30);
-		if (font == NULL)
-		{
-			std::cout << "Failed to load Font";
-			return 0;
-		}
+		font_menu = TTF_OpenFont("font1.ttf", 45);
 		if (!background.LoadImage("background6.png", renderer))
 		{
 			return 0;
@@ -106,6 +163,78 @@ int  main(int arv,char* argv[])
 		}
 		else
 		{
+			//Handle_Menu
+			menu();
+			int xm = 0;
+			int ym = 0;
+			SDL_GetMouseState(&xm, &ym);
+			bool menu_Run = true;
+			SDL_Event e_menu;
+			while (menu_Run)
+			{
+				if (menu_num == 0)
+				{
+					menu0.Render(renderer);
+					text_item[0].Render(renderer);
+					text_item[1].Render(renderer);
+					text_item[2].Render(renderer);
+				}
+				else if (menu_num == 1)
+				{
+					menu1.Render(renderer);
+					text_item[3].Render(renderer);
+				}
+				while (SDL_PollEvent(&e_menu)!=0)
+				{
+					if (e_menu.type == SDL_QUIT)
+					{
+						menu_Run == false;
+						return 0;
+					}
+					else if (e_menu.type == SDL_MOUSEMOTION)
+					{
+						//SDL_GetMouseState(&xm, &ym);
+						for (int t = 0; t < num_item; t++)
+						{
+							if (check_mouse_item(xm, ym, text_item[t].GetRect()))
+							{
+								text_item[t].SetTextColor(textobject::WHILE_TYPE);
+							}
+							else text_item[t].SetTextColor(textobject::BLACK_TYPE);
+						}
+					}
+					else if (e_menu.type == SDL_MOUSEBUTTONDOWN)
+					{
+						xm = e_menu.button.x;
+						ym = e_menu.button.y;
+						for (int i = 0; i < num_item; i++)
+						{
+							if (check_mouse_item(xm, ym, text_item[i].GetRect()))
+							{
+								if (i == 0)
+								{
+									menu_Run = false;
+								}
+								else if (i == 1)
+								{
+									menu_num = 1;
+       							}
+								else if (i == 2)
+								{
+									return 0;
+								}
+								else if (i == 3)
+								{
+									menu_num = 0;
+								}
+							}
+						}
+					}
+				}
+				SDL_RenderPresent(renderer);
+			}
+
+			//Handle_Game
 			background.SetRect(0,run);
 			bool quit = false;
 			SDL_Event e;
@@ -149,6 +278,7 @@ int  main(int arv,char* argv[])
 				textTime.SetText(text_time);
 				textTime.SetRect(1000, 10);
 				textTime.ShowText(font, renderer);
+				textTime.Render(renderer);
 				SDL_RenderPresent(renderer);
 			}
 		}

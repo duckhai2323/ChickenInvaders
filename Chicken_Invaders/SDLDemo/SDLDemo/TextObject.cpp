@@ -40,6 +40,6 @@ void textobject::ShowText(TTF_Font* font, SDL_Renderer* renderer)
 		rect_.w = surface->w;
 		rect_.h = surface->h;
 		SDL_FreeSurface(surface);
-		Render(renderer);
+		//Render(renderer);
 	}
 }
