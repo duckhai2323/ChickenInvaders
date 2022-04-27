@@ -23,7 +23,7 @@ enum Bullet_Level
 };
 
 const int LEVEL_UP = 3;
-const int NUM_STONE_THREAT = 15;
+const int NUM_STONE_THREAT = 25;
 
 
 

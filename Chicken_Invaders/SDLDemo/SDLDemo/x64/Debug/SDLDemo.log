@@ -1,11 +1,1 @@
-﻿  BaseObject.cpp
-  BulletObject.cpp
-  GiftObject.cpp
-  SpaceObject.cpp
-  TextObject.cpp
-  ThreatStone.cpp
-  main.cpp
-C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(155,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(206,16): warning C4553: '==': result of expression not used; did you intend '='?
-  Generating Code...
-  SDLDemo.vcxproj -> C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\x64\Debug\SDLDemo.exe
+﻿  SDLDemo.vcxproj -> C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\x64\Debug\SDLDemo.exe

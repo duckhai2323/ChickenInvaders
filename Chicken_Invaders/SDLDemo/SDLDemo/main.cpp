@@ -10,12 +10,17 @@ SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 baseobject background;
 spaceobject space;
+std::vector<threatstone*>stone_;
+
+//header
 TTF_Font* font = NULL;
 textobject textTime;
 TTF_Font* font_Level = NULL;
 textobject textLevel;
-std::vector<threatstone*>stone_;
-
+int Level = 1;
+textobject text_stone_died;
+int num_stone_died = 0;
+baseobject stone_small;
 
 // Menu
 baseobject menu0;
@@ -26,7 +31,6 @@ const int num_item = 4;
 SDL_Rect poss_item[num_item];
 textobject text_item[num_item];
 
-int Level = 1;
 
 bool init()
 {
@@ -163,7 +167,9 @@ int  main(int arv,char* argv[])
 		font = TTF_OpenFont("font1.ttf", 30);
 		font_menu = TTF_OpenFont("font1.ttf", 45);
 		font_Level = TTF_OpenFont("font1.ttf", 30);
+
 		std::string level = "Level : ";
+		std::string str_stont = " : ";
 		if (!background.LoadImage("background6.png", renderer))
 		{
 			return 0;
@@ -286,6 +292,33 @@ int  main(int arv,char* argv[])
 					run += 3;
 					background.SetRect(0, run);
 					background.Render(renderer);
+
+					for (int i = 0; i < NUM_STONE_THREAT; i++)
+					{
+						threatstone* stone = stone_.at(i);
+						if (stone != NULL)
+						{
+							if (stone->GetStatus())
+							{
+								stone->HandleThreatStone();
+								stone->ShowStone(renderer);
+							}
+						}
+						std::vector<bulletobject*> bull_list = space.GetBulletList();
+						for (int i = 0; i < space.GetBulletList().size(); i++)
+						{
+							bulletobject* BULLET = bull_list.at(i);
+							bool col1 = check_collision(BULLET->GetRect(), stone->GetRect());
+							if (col1)
+							{
+								num_stone_died++;
+								stone->SetRect(stone->GetRect().x, -WINDOW_HEIGHT);
+								stone->SetStatus(false);
+								space.RemoveBullet(i);
+							}
+						}
+					}
+
 					if (run+3 >= 0)
 					{
 						Level++;
@@ -301,31 +334,8 @@ int  main(int arv,char* argv[])
 				space.Show(renderer);
                 space.HandleBullet(renderer);
 
-				for (int i = 0; i < NUM_STONE_THREAT; i++)
-				{
-					threatstone* stone = stone_.at(i);
-					if (stone != NULL)
-					{
-						if (stone->GetStatus())
-						{
-							stone->HandleThreatStone();
-							stone->ShowStone(renderer);
-						}
-					}
-					std::vector<bulletobject*> bull_list = space.GetBulletList();
-					for (int i = 0; i < space.GetBulletList().size(); i++)
-					{
-						bulletobject* BULLET = bull_list.at(i);
-						bool col1 = check_collision(BULLET->GetRect(), stone->GetRect());
-						if (col1)
-						{
-							stone->SetRect(stone->GetRect().x, -WINDOW_HEIGHT);
-							stone->SetStatus(false);
-							space.RemoveBullet(i);
-						}
-					}
-				}
 
+				//header
 				std::string text_time = "Time : ";
 			    Uint32 time = SDL_GetTicks() / 1000;
 				std::string time_ = std::to_string(time);
@@ -340,6 +350,19 @@ int  main(int arv,char* argv[])
 				textLevel.ShowText(font_Level, renderer);
 				textLevel.SetRect(WINDOW_WIDTH / 2 - textLevel.GetRect().w / 2, 10);
 				textLevel.Render(renderer);
+
+
+				if (is_run)
+				{
+					stone_small.LoadImage("threat_da_small.png", renderer);
+					stone_small.SetRect(40, 10);
+					stone_small.Render(renderer);
+				std::string str_stone_ = std::to_string(num_stone_died);
+				text_stone_died.SetText(str_stont + str_stone_);
+				text_stone_died.ShowText(font_Level, renderer);
+				text_stone_died.SetRect(80, 10);
+				text_stone_died.Render(renderer);
+				}
 
 				SDL_RenderPresent(renderer);
 
