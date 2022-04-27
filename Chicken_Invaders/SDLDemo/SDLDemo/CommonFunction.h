@@ -4,6 +4,7 @@
 #include<iostream>
 #include<string>
 #include<vector>
+#include<ctime>
 #include<SDL.h>
 #include<SDL_image.h>
 #include<SDL_ttf.h>
@@ -22,6 +23,7 @@ enum Bullet_Level
 };
 
 const int LEVEL_UP = 3;
+const int NUM_STONE_THREAT = 15;
 
 
 

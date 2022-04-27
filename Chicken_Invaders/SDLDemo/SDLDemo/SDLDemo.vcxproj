@@ -155,12 +155,14 @@
     </ClCompile>
     <ClCompile Include="SpaceObject.cpp" />
     <ClCompile Include="TextObject.cpp" />
+    <ClCompile Include="ThreatStone.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseObject.h" />
     <ClInclude Include="BulletObject.h" />
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="GiftObject.h" />
+    <ClInclude Include="ThreatStone.h" />
     <ClInclude Include="SpaceObject.h" />
     <ClInclude Include="TextObject.h" />
   </ItemGroup>

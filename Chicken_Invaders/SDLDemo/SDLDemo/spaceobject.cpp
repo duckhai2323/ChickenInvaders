@@ -159,3 +159,14 @@ void spaceobject::HandleBullet(SDL_Renderer* renderer)
 		}
 	}
 }
+
+void spaceobject::RemoveBullet(const int& x)
+{
+	for (int i = 0; i < bullet_list_.size(); i++)
+	{
+		if (x < bullet_list_.size())
+		{
+			bullet_list_.erase(bullet_list_.begin() + x);
+		}
+	}
+}

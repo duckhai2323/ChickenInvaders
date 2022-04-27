@@ -4,6 +4,7 @@
 #include"BulletObject.h"
 #include"GiftObject.h"
 #include"TextObject.h"
+#include"ThreatStone.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -11,6 +12,10 @@ baseobject background;
 spaceobject space;
 TTF_Font* font = NULL;
 textobject textTime;
+TTF_Font* font_Level = NULL;
+textobject textLevel;
+std::vector<threatstone*>stone_;
+
 
 // Menu
 baseobject menu0;
@@ -20,6 +25,8 @@ TTF_Font* font_menu = NULL;
 const int num_item = 4;
 SDL_Rect poss_item[num_item];
 textobject text_item[num_item];
+
+int Level = 1;
 
 bool init()
 {
@@ -88,11 +95,11 @@ bool check_mouse_item(const int& x, const int& y, const SDL_Rect& rect)
 
 void menu()
 {
-	if (!menu0.LoadImage("menu0.png", renderer))
+	if (!menu0.LoadImage("menu0_1.png", renderer))
 	{
 		return;
 	}
-	if (!menu1.LoadImage("menu1.png", renderer))
+	if (!menu1.LoadImage("menu1_1.png", renderer))
 	{
 		return;
 	}
@@ -145,6 +152,8 @@ int  main(int arv,char* argv[])
 	bool is_run = true;
 	int bullet_level = 0;
 	textTime.SetTextColor(textobject::WHILE_TYPE);
+	srand(time(NULL));
+
 	if (!init())
 	{
 		return 0;
@@ -153,6 +162,8 @@ int  main(int arv,char* argv[])
 	{
 		font = TTF_OpenFont("font1.ttf", 30);
 		font_menu = TTF_OpenFont("font1.ttf", 45);
+		font_Level = TTF_OpenFont("font1.ttf", 30);
+		std::string level = "Level : ";
 		if (!background.LoadImage("background6.png", renderer))
 		{
 			return 0;
@@ -240,6 +251,20 @@ int  main(int arv,char* argv[])
 
 			//Handle_Game
 			background.SetRect(0,run);
+			// Create_Threat
+			for (int i = 0; i < NUM_STONE_THREAT; i++)
+			{
+				threatstone* stone_threat = new threatstone;
+				int stone_rand = rand() % 2 + 1;
+				if (stone_rand == 1) { stone_threat->LoadImage("threat_da_80.png", renderer); }
+				 else stone_threat->LoadImage("threat_da.png", renderer);
+				int Rand = rand() % 1000 + 10;
+				stone_threat->SetXY(0, 5);
+				stone_threat->SetRect(Rand, -i * 300);
+				stone_threat->SetStatus(true);
+				stone_.push_back(stone_threat);
+			}
+
 			bool quit = false;
 			SDL_Event e;
 			while (!quit)
@@ -263,6 +288,7 @@ int  main(int arv,char* argv[])
 					background.Render(renderer);
 					if (run+3 >= 0)
 					{
+						Level++;
 						is_run = false;
 					}
 				}
@@ -275,15 +301,48 @@ int  main(int arv,char* argv[])
 				space.Show(renderer);
                 space.HandleBullet(renderer);
 
+				for (int i = 0; i < NUM_STONE_THREAT; i++)
+				{
+					threatstone* stone = stone_.at(i);
+					if (stone != NULL)
+					{
+						if (stone->GetStatus())
+						{
+							stone->HandleThreatStone();
+							stone->ShowStone(renderer);
+						}
+					}
+					std::vector<bulletobject*> bull_list = space.GetBulletList();
+					for (int i = 0; i < space.GetBulletList().size(); i++)
+					{
+						bulletobject* BULLET = bull_list.at(i);
+						bool col1 = check_collision(BULLET->GetRect(), stone->GetRect());
+						if (col1)
+						{
+							stone->SetRect(stone->GetRect().x, -WINDOW_HEIGHT);
+							stone->SetStatus(false);
+							space.RemoveBullet(i);
+						}
+					}
+				}
+
 				std::string text_time = "Time : ";
-				Uint32 time = SDL_GetTicks() / 1000;
+			    Uint32 time = SDL_GetTicks() / 1000;
 				std::string time_ = std::to_string(time);
 				text_time += time_;
 				textTime.SetText(text_time);
 				textTime.SetRect(1000, 10);
 				textTime.ShowText(font, renderer);
 				textTime.Render(renderer);
+
+				std::string Level_ = std::to_string(Level);
+				textLevel.SetText(level+Level_);
+				textLevel.ShowText(font_Level, renderer);
+				textLevel.SetRect(WINDOW_WIDTH / 2 - textLevel.GetRect().w / 2, 10);
+				textLevel.Render(renderer);
+
 				SDL_RenderPresent(renderer);
+
 			}
 		}
 	}

@@ -41,6 +41,7 @@ public:
 	int get_bul_type()const { return bullet_type_; }
 
 	void HandleBullet(SDL_Renderer* renderer);
+	void RemoveBullet(const int& x);
 
 
 private:
