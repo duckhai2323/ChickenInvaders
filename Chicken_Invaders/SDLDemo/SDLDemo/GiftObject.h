@@ -6,8 +6,8 @@
 
 #define GIFT_WIDTH 49
 #define GIFT_HEIGHT 58
-#define LEVEL_UP_WIDTH 49
-#define LEVEL_UP_HEIGHT 51
+#define LEVEL_UP_WIDTH 1784/25
+#define LEVEL_UP_HEIGHT 60
 #define GIFT_SPEED 3
 
 class giftobject :public baseobject

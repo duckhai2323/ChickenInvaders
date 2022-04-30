@@ -28,6 +28,10 @@ void textobject::SetTextColor(const int& x)
 	{
 		text_color = { 255,255,255 };
 	}
+	else if (x == GREEN_TYPE)
+	{
+		text_color = { 173,255,47 };
+	}
 }
 
 void textobject::ShowText(TTF_Font* font, SDL_Renderer* renderer)

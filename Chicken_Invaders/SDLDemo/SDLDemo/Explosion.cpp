@@ -2,7 +2,7 @@
 
 explosion::explosion()
 {
-	frame_ = 40;
+	frame_ = 24;
 }
 
 explosion::~explosion()
@@ -25,5 +25,5 @@ void explosion::RenderExp(SDL_Renderer* renderer)
 {
 	frame_++;
 	SDL_Rect RenderQuad = { rect_.x,rect_.y,WIDTH_EXP,HEIGHT_EXP};
-	SDL_RenderCopy(renderer, b_object, &Exp[frame_ / 5], &RenderQuad);
+	SDL_RenderCopy(renderer, b_object, &Exp[frame_ / 3], &RenderQuad);
 }

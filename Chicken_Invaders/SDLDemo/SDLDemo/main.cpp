@@ -12,6 +12,7 @@ SDL_Renderer* renderer = NULL;
 baseobject background;
 spaceobject space;
 explosion exp_;
+giftobject gift;
 std::vector<threatstone*>stone_;
 
 //header
@@ -22,17 +23,17 @@ textobject textLevel;
 int Level = 1;
 textobject text_stone_died;
 int num_stone_died = 0;
+textobject text_skill;
 baseobject stone_small;
 
 // Menu
 baseobject menu0;
 baseobject menu1;
 TTF_Font* font_menu = NULL;
- int menu_num = 0;
+int menu_num = 0;
 const int num_item = 4;
 SDL_Rect poss_item[num_item];
 textobject text_item[num_item];
-
 
 bool init()
 {
@@ -112,28 +113,28 @@ void menu()
 
 
 	text_item[0].SetText("Start");
-	text_item[0].SetTextColor(textobject::BLACK_TYPE);
+	text_item[0].SetTextColor(textobject::GREEN_TYPE);
 	text_item[0].ShowText(font_menu, renderer);
 	poss_item[0].x = WINDOW_WIDTH / 2 - text_item[0].GetRect().w / 2;
 	poss_item[0].y = WINDOW_HEIGHT - 250;
 	text_item[0].SetRect(poss_item[0].x, poss_item[0].y);
 
 	text_item[1].SetText("Information");
-	text_item[1].SetTextColor(textobject::BLACK_TYPE);
+	text_item[1].SetTextColor(textobject::GREEN_TYPE);
 	text_item[1].ShowText(font_menu, renderer);
 	poss_item[1].x = WINDOW_WIDTH / 2 - text_item[1].GetRect().w / 2;
 	poss_item[1].y = WINDOW_HEIGHT - 170;
 	text_item[1].SetRect(poss_item[1].x, poss_item[1].y);
 
 	text_item[2].SetText("Exit !");
-	text_item[2].SetTextColor(textobject::BLACK_TYPE);
+	text_item[2].SetTextColor(textobject::GREEN_TYPE);
 	text_item[2].ShowText(font_menu, renderer);
 	poss_item[2].x = WINDOW_WIDTH / 2 - text_item[2].GetRect().w / 2;
 	poss_item[2].y = WINDOW_HEIGHT - 90;
 	text_item[2].SetRect(poss_item[2].x, poss_item[2].y);
 
 	text_item[3].SetText("Back !");
-	text_item[3].SetTextColor(textobject::BLACK_TYPE);
+	text_item[3].SetTextColor(textobject::GREEN_TYPE);
 	text_item[3].ShowText(font_menu, renderer);
 	poss_item[3].x = 10;
 	poss_item[3].y = 10;
@@ -167,12 +168,13 @@ int  main(int arv,char* argv[])
 	}
 	else
 	{
-		font = TTF_OpenFont("font1.ttf", 30);
+		font = TTF_OpenFont("font1.ttf", 25);
 		font_menu = TTF_OpenFont("font1.ttf", 45);
 		font_Level = TTF_OpenFont("font1.ttf", 30);
 
 		std::string level = "Level : ";
 		std::string str_stont = " : ";
+		std::string bullet_level_ = " : ";
 		if (!background.LoadImage("background6.png", renderer))
 		{
 			return 0;
@@ -228,7 +230,7 @@ int  main(int arv,char* argv[])
 							{
 								text_item[t].SetTextColor(textobject::WHILE_TYPE);
 							}
-							else text_item[t].SetTextColor(textobject::BLACK_TYPE);
+							else text_item[t].SetTextColor(textobject::GREEN_TYPE);
 						}
 					}
 					else if (e_menu.type == SDL_MOUSEBUTTONDOWN)
@@ -324,6 +326,15 @@ int  main(int arv,char* argv[])
 								stone->SetRect(stone->GetRect().x, -WINDOW_HEIGHT);
 								stone->SetStatus(false);
 								space.RemoveBullet(i);
+								if (num_stone_died % 10 == 0)
+								{
+									gift.SetIsMoveGift(true);
+									gift.SetY_val(SPEED_GIFT);
+									gift.SetClips();
+									gift.SetGiftType(gift.RandomType());
+									gift.LoadGift(renderer);
+									gift.SetRect(rand()%1000+10, -300);
+								}
 							}
 						}
 
@@ -368,6 +379,15 @@ int  main(int arv,char* argv[])
 										stone->SetRect(stone->GetRect().x, -WINDOW_HEIGHT);
 										stone->SetStatus(false);
 										space.RemoveBullet(i);
+										if (num_stone_died % 10 ==0)
+										{
+											gift.SetIsMoveGift(true);
+											gift.SetY_val(SPEED_GIFT);
+											gift.SetClips();
+											gift.SetGiftType(gift.RandomType());
+											gift.LoadGift(renderer);
+											gift.SetRect(rand()%1000+10, 0);
+										}
 									}
 								}
 
@@ -392,9 +412,33 @@ int  main(int arv,char* argv[])
                 space.HandleBullet(renderer);
 
 				//show explosion
-				if (exp_.GetFrame() < 40)
+				if (exp_.GetFrame() < 24)
 				{
 					exp_.RenderExp(renderer);
+				}
+
+				//Handle_GIft
+				if (gift.GetIsMoveGift())
+				{
+					gift.MoveGift();
+					gift.Show(renderer);
+					bool colgift = check_collision(gift.GetRect(), space.GetRect());
+					if (colgift)
+					{
+						gift.SetIsMoveGift(false);
+						gift.SetRect(-gift.GetRect().w, -gift.GetRect().h);
+						if (gift.GetGiftType() == space.get_bul_type() || gift.GetGiftType() == LEVEL_UP)
+						{
+							if (bullet_level < 3)
+							{
+								bullet_level++;
+							}
+						}
+						else
+						{
+							space.set_bul_type(gift.GetGiftType());
+						}
+					}
 				}
 
 				//header
@@ -413,16 +457,22 @@ int  main(int arv,char* argv[])
 				textLevel.SetRect(WINDOW_WIDTH / 2 - textLevel.GetRect().w / 2, 10);
 				textLevel.Render(renderer);
 
+				std::string bullet_lev = std::to_string(bullet_level);
+				text_skill.SetText(bullet_level_ + bullet_lev);
+				text_skill.ShowText(font, renderer);
+				text_skill.SetRect(170, 10);
+				text_skill.Render(renderer);
+
 
 				if (is_run)
 				{
-					stone_small.LoadImage("threat_da_small.png", renderer);
+					stone_small.LoadImage("header1.png", renderer);
 					stone_small.SetRect(40,10);
 					stone_small.Render(renderer);
 				std::string str_stone_ = std::to_string(num_stone_died);
 				text_stone_died.SetText(str_stont + str_stone_);
-				text_stone_died.ShowText(font_Level, renderer);
-				text_stone_died.SetRect(80, 10);
+				text_stone_died.ShowText(font, renderer);
+				text_stone_died.SetRect(290, 10);
 				text_stone_died.Render(renderer);
 				}
 

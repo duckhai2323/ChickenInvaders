@@ -11,7 +11,8 @@ public:
 	{
 		RED_TYPE,
 		BLACK_TYPE,
-		WHILE_TYPE
+		WHILE_TYPE,
+		GREEN_TYPE
 	};
 
 	textobject();

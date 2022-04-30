@@ -27,7 +27,7 @@ void bulletobject::LoadBullet(SDL_Renderer* renderer, int bullet_level)
 	}
 	else if (bullet_type == LASER)
 	{
-		std::string laster_str = "laster" + std::to_string(bullet_level) + ".png";
+		std::string laster_str = "laser" + std::to_string(bullet_level) + ".png";
 		LoadImage(laster_str, renderer);
 	}
 }
