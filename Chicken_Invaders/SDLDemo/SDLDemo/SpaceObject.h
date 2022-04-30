@@ -42,7 +42,9 @@ public:
 
 	void HandleBullet(SDL_Renderer* renderer);
 	void RemoveBullet(const int& x);
-
+	void SetHeart(const int& heart) { heart_ = heart; }
+	int GetHeart() const { return heart_; }
+	void decrease() { heart_--; }
 
 private:
 	int x_val_;
@@ -50,6 +52,7 @@ private:
 
 	bool status;
 	int bullet_type_;
+	int heart_;
 	std::vector<bulletobject*> bullet_list_;
 };
 

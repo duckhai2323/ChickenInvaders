@@ -5,11 +5,13 @@
 #include"GiftObject.h"
 #include"TextObject.h"
 #include"ThreatStone.h"
+#include"Explosion.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 baseobject background;
 spaceobject space;
+explosion exp_;
 std::vector<threatstone*>stone_;
 
 //header
@@ -156,6 +158,7 @@ int  main(int arv,char* argv[])
 	bool is_run = true;
 	int bullet_level = 0;
 	textTime.SetTextColor(textobject::WHILE_TYPE);
+	exp_.Set_Clip();
 	srand(time(NULL));
 
 	if (!init())
@@ -175,6 +178,10 @@ int  main(int arv,char* argv[])
 			return 0;
 		}
 		if (!space.LoadImage("rocket.png", renderer))
+		{
+			return 0;
+		}
+		if (!exp_.LoadImage("exp.png", renderer))
 		{
 			return 0;
 		}
@@ -265,8 +272,8 @@ int  main(int arv,char* argv[])
 				if (stone_rand == 1) { stone_threat->LoadImage("threat_da_80.png", renderer); }
 				 else stone_threat->LoadImage("threat_da.png", renderer);
 				int Rand = rand() % 1000 + 10;
-				stone_threat->SetXY(0, 5);
-				stone_threat->SetRect(Rand, -i * 300);
+				stone_threat->SetXY(0, SPEED_THREAT_STONE);
+				stone_threat->SetRect(Rand, -i*200);
 				stone_threat->SetStatus(true);
 				stone_.push_back(stone_threat);
 			}
@@ -289,7 +296,7 @@ int  main(int arv,char* argv[])
 
 				if (is_run)
 				{
-					run += 3;
+					run += SPEED_RUN;
 					background.SetRect(0, run);
 					background.Render(renderer);
 
@@ -304,6 +311,8 @@ int  main(int arv,char* argv[])
 								stone->ShowStone(renderer);
 							}
 						}
+						
+						//checkcollision_bulletofspace_stone
 						std::vector<bulletobject*> bull_list = space.GetBulletList();
 						for (int i = 0; i < space.GetBulletList().size(); i++)
 						{
@@ -317,9 +326,22 @@ int  main(int arv,char* argv[])
 								space.RemoveBullet(i);
 							}
 						}
+
+						//checkcollision_stone_space
+						bool col2 = check_collision(stone->GetRect(), space.GetRect());
+						if (col2)
+						{
+							num_stone_died++;
+							stone->SetRect(stone->GetRect().x, -WINDOW_HEIGHT);
+							stone->SetStatus(false);
+							exp_.SetRect(space.GetRect().x, space.GetRect().y);
+							exp_.SetFrame(0);
+							space.SetRect(-space.GetRect().w, -space.GetRect().h);
+						    space.SetStatus(false);
+						}
 					}
 
-					if (run+3 >= 0)
+					if (run+SPEED_RUN >= 0)
 					{
 						Level++;
 						is_run = false;
@@ -328,12 +350,52 @@ int  main(int arv,char* argv[])
 					else
 					{
 						background.Render(renderer);
+						for (int i = 0; i < NUM_STONE_THREAT; i++)
+						{
+							threatstone* stone = stone_.at(i);
+							if (stone->GetRect().y >= - stone->GetRect().h && stone->GetRect().y <= WINDOW_HEIGHT)
+							{
+								stone->HandleThreatStone();
+								stone->ShowStone(renderer);
+								std::vector<bulletobject*> bull_list = space.GetBulletList();
+								for (int i = 0; i < space.GetBulletList().size(); i++)
+								{
+									bulletobject* BULLET = bull_list.at(i);
+									bool col1 = check_collision(BULLET->GetRect(), stone->GetRect());
+									if (col1)
+									{
+										num_stone_died++;
+										stone->SetRect(stone->GetRect().x, -WINDOW_HEIGHT);
+										stone->SetStatus(false);
+										space.RemoveBullet(i);
+									}
+								}
+
+								bool col2 = check_collision(stone->GetRect(), space.GetRect());
+								if (col2)
+								{
+									num_stone_died++;
+									stone->SetRect(stone->GetRect().x, -WINDOW_HEIGHT);
+									stone->SetStatus(false);
+									exp_.SetRect(space.GetRect().x, space.GetRect().y);
+									exp_.SetFrame(0);
+									space.SetRect(-space.GetRect().w, -space.GetRect().h);
+									space.SetStatus(false);
+								}
+							}
+							
+						}
 					}
 
 				space.Move();
 				space.Show(renderer);
                 space.HandleBullet(renderer);
 
+				//show explosion
+				if (exp_.GetFrame() < 40)
+				{
+					exp_.RenderExp(renderer);
+				}
 
 				//header
 				std::string text_time = "Time : ";
@@ -355,7 +417,7 @@ int  main(int arv,char* argv[])
 				if (is_run)
 				{
 					stone_small.LoadImage("threat_da_small.png", renderer);
-					stone_small.SetRect(40, 10);
+					stone_small.SetRect(40,10);
 					stone_small.Render(renderer);
 				std::string str_stone_ = std::to_string(num_stone_died);
 				text_stone_died.SetText(str_stont + str_stone_);

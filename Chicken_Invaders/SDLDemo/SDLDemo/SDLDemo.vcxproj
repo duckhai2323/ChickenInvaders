@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BulletObject.cpp" />
+    <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="GiftObject.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -161,6 +162,7 @@
     <ClInclude Include="BaseObject.h" />
     <ClInclude Include="BulletObject.h" />
     <ClInclude Include="CommonFunction.h" />
+    <ClInclude Include="Explosion.h" />
     <ClInclude Include="GiftObject.h" />
     <ClInclude Include="ThreatStone.h" />
     <ClInclude Include="SpaceObject.h" />
