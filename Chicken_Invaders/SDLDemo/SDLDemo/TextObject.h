@@ -12,7 +12,8 @@ public:
 		RED_TYPE,
 		BLACK_TYPE,
 		WHILE_TYPE,
-		GREEN_TYPE
+		GREEN_TYPE,
+		YELLOW_TYPE
 	};
 
 	textobject();

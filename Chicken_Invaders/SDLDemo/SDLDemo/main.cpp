@@ -23,8 +23,11 @@ textobject textLevel;
 int Level = 1;
 textobject text_stone_died;
 int num_stone_died = 0;
+int num_chicken_died = 0;
 textobject text_skill;
+textobject text_heart;
 baseobject stone_small;
+baseobject skill_heart;
 
 // Menu
 baseobject menu0;
@@ -34,6 +37,10 @@ int menu_num = 0;
 const int num_item = 4;
 SDL_Rect poss_item[num_item];
 textobject text_item[num_item];
+
+//Return_Game_End_Game
+TTF_Font* font_return = NULL;
+textobject text_return;
 
 bool init()
 {
@@ -67,6 +74,14 @@ bool init()
 				if (TTF_Init() == -1)
 				{
 					return false;
+				}
+				font = TTF_OpenFont("font1.ttf", 25);
+				font_menu = TTF_OpenFont("font1.ttf", 45);
+				font_Level = TTF_OpenFont("font1.ttf", 30);
+				font_return = TTF_OpenFont("font1.ttf", 50);
+				if (font == NULL || font_menu == NULL || font_Level == NULL||font_return == NULL)
+				{
+					return 0;
 				}
 			}
 		}
@@ -112,29 +127,29 @@ void menu()
 	}
 
 
-	text_item[0].SetText("Start");
-	text_item[0].SetTextColor(textobject::GREEN_TYPE);
+	text_item[0].SetText("Play Game");
+	text_item[0].SetTextColor(textobject::YELLOW_TYPE);
 	text_item[0].ShowText(font_menu, renderer);
 	poss_item[0].x = WINDOW_WIDTH / 2 - text_item[0].GetRect().w / 2;
 	poss_item[0].y = WINDOW_HEIGHT - 250;
 	text_item[0].SetRect(poss_item[0].x, poss_item[0].y);
 
 	text_item[1].SetText("Information");
-	text_item[1].SetTextColor(textobject::GREEN_TYPE);
+	text_item[1].SetTextColor(textobject::YELLOW_TYPE);
 	text_item[1].ShowText(font_menu, renderer);
 	poss_item[1].x = WINDOW_WIDTH / 2 - text_item[1].GetRect().w / 2;
 	poss_item[1].y = WINDOW_HEIGHT - 170;
 	text_item[1].SetRect(poss_item[1].x, poss_item[1].y);
 
 	text_item[2].SetText("Exit !");
-	text_item[2].SetTextColor(textobject::GREEN_TYPE);
+	text_item[2].SetTextColor(textobject::YELLOW_TYPE);
 	text_item[2].ShowText(font_menu, renderer);
 	poss_item[2].x = WINDOW_WIDTH / 2 - text_item[2].GetRect().w / 2;
 	poss_item[2].y = WINDOW_HEIGHT - 90;
 	text_item[2].SetRect(poss_item[2].x, poss_item[2].y);
 
 	text_item[3].SetText("Back !");
-	text_item[3].SetTextColor(textobject::GREEN_TYPE);
+	text_item[3].SetTextColor(textobject::YELLOW_TYPE);
 	text_item[3].ShowText(font_menu, renderer);
 	poss_item[3].x = 10;
 	poss_item[3].y = 10;
@@ -168,13 +183,9 @@ int  main(int arv,char* argv[])
 	}
 	else
 	{
-		font = TTF_OpenFont("font1.ttf", 25);
-		font_menu = TTF_OpenFont("font1.ttf", 45);
-		font_Level = TTF_OpenFont("font1.ttf", 30);
 
 		std::string level = "Level : ";
-		std::string str_stont = " : ";
-		std::string bullet_level_ = " : ";
+		std::string str_ = " : ";
 		if (!background.LoadImage("background6.png", renderer))
 		{
 			return 0;
@@ -230,7 +241,7 @@ int  main(int arv,char* argv[])
 							{
 								text_item[t].SetTextColor(textobject::WHILE_TYPE);
 							}
-							else text_item[t].SetTextColor(textobject::GREEN_TYPE);
+							else text_item[t].SetTextColor(textobject::YELLOW_TYPE);
 						}
 					}
 					else if (e_menu.type == SDL_MOUSEBUTTONDOWN)
@@ -349,6 +360,11 @@ int  main(int arv,char* argv[])
 							exp_.SetFrame(0);
 							space.SetRect(-space.GetRect().w, -space.GetRect().h);
 						    space.SetStatus(false);
+							space.decrease();
+							if (bullet_level >= 1)
+							{
+								bullet_level--;
+							}
 						}
 					}
 
@@ -401,6 +417,11 @@ int  main(int arv,char* argv[])
 									exp_.SetFrame(0);
 									space.SetRect(-space.GetRect().w, -space.GetRect().h);
 									space.SetStatus(false);
+									space.decrease();
+									if(bullet_level>= 1)
+									{
+										bullet_level--;
+									}
 								}
 							}
 							
@@ -410,12 +431,6 @@ int  main(int arv,char* argv[])
 				space.Move();
 				space.Show(renderer);
                 space.HandleBullet(renderer);
-
-				//show explosion
-				if (exp_.GetFrame() < 24)
-				{
-					exp_.RenderExp(renderer);
-				}
 
 				//Handle_GIft
 				if (gift.GetIsMoveGift())
@@ -441,6 +456,25 @@ int  main(int arv,char* argv[])
 					}
 				}
 
+				//show explosion
+				if (exp_.GetFrame() < 24)
+				{
+					exp_.RenderExp(renderer);
+				}
+
+
+				//Return _Game
+				if (!space.GetStatus())
+				{
+					if (space.GetHeart() > 0)
+					{
+						text_return.SetText("Press 'ENTER' to revive !");
+						text_return.ShowText(font_return, renderer);
+						text_return.SetRect((WINDOW_WIDTH - text_return.GetRect().w) / 2, (WINDOW_HEIGHT - text_return.GetRect().h) / 2);
+						text_return.Render(renderer);
+					}
+				}
+
 				//header
 				std::string text_time = "Time : ";
 			    Uint32 time = SDL_GetTicks() / 1000;
@@ -457,24 +491,40 @@ int  main(int arv,char* argv[])
 				textLevel.SetRect(WINDOW_WIDTH / 2 - textLevel.GetRect().w / 2, 10);
 				textLevel.Render(renderer);
 
+				std::string num_heart_ = std::to_string(space.GetHeart());
+				text_heart.SetText(str_ + num_heart_);
+				text_heart.ShowText(font, renderer);
+				text_heart.SetRect(60, 10);
+				text_heart.Render(renderer);
+
+				skill_heart.LoadImage("skill_heart.png", renderer);
+				skill_heart.SetRect(10, 0);
+				skill_heart.Render(renderer);
 				std::string bullet_lev = std::to_string(bullet_level);
-				text_skill.SetText(bullet_level_ + bullet_lev);
+				text_skill.SetText(str_ + bullet_lev);
 				text_skill.ShowText(font, renderer);
-				text_skill.SetRect(170, 10);
+				text_skill.SetRect(160, 10);
 				text_skill.Render(renderer);
 
 
 				if (is_run)
 				{
-					stone_small.LoadImage("header1.png", renderer);
-					stone_small.SetRect(40,10);
-					stone_small.Render(renderer);
-				std::string str_stone_ = std::to_string(num_stone_died);
-				text_stone_died.SetText(str_stont + str_stone_);
+				stone_small.LoadImage("threat_small_.png", renderer);
+				std::string num_threat_ = std::to_string(num_stone_died);
+				text_stone_died.SetText(str_ + num_threat_);
+				}
+				else
+				{
+					stone_small.LoadImage("kfc.png", renderer);
+					std::string num_threat_ = std::to_string(num_chicken_died);
+					text_stone_died.SetText(str_ + num_threat_);
+
+				}
 				text_stone_died.ShowText(font, renderer);
 				text_stone_died.SetRect(290, 10);
 				text_stone_died.Render(renderer);
-				}
+				stone_small.SetRect(240, 0);
+				stone_small.Render(renderer);
 
 				SDL_RenderPresent(renderer);
 

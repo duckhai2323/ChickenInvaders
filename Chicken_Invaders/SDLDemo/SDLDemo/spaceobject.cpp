@@ -10,6 +10,7 @@ spaceobject::spaceobject()
 	x_val_ = 0;
 	y_val_ = 0;
 	bullet_type_ = BLASTER;
+	heart_ = MAIN_HEART;
 }
 
 spaceobject::~spaceobject()
@@ -29,14 +30,17 @@ void spaceobject::InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_leve
 			case SDLK_w:
 				y_val_ -= MAIN_SPEED;
 				break;
+
 			case SDLK_DOWN:
 			case SDLK_s:
 				y_val_ += MAIN_SPEED;
 				break;
+
 			case SDLK_LEFT:
 			case SDLK_a:
 				x_val_ -= MAIN_SPEED;
 				break;
+
 			case SDLK_RIGHT:
 			case SDLK_d:
 				x_val_ += MAIN_SPEED;
@@ -61,9 +65,10 @@ void spaceobject::InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_leve
 				p_bullet->SetRect(this->rect_.x + this->rect_.w / 2 - p_bullet->GetRect().w/2, this->rect_.y - p_bullet->GetRect().h );
 				p_bullet->SetIsMove(true);
 				bullet_list_.push_back(p_bullet);
+				break;
 			}
 		}
-		if (e.type == SDL_KEYUP && e.key.repeat == 0)
+		else if (e.type == SDL_KEYUP && e.key.repeat == 0)
 		{
 			switch (e.key.keysym.sym)
 			{
@@ -71,14 +76,17 @@ void spaceobject::InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_leve
 			case SDLK_w:
 				y_val_ += MAIN_SPEED;
 				break;
+
 			case SDLK_DOWN:
 			case SDLK_s:
 				y_val_ -= MAIN_SPEED;
 				break;
+
 			case SDLK_LEFT:
 			case SDLK_a:
 				x_val_ += MAIN_SPEED;
 				break;
+
 			case SDLK_RIGHT:
 			case SDLK_d:
 				x_val_ -= MAIN_SPEED;
@@ -102,9 +110,26 @@ void spaceobject::InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_leve
 				p_bullet->SetY(LASER_SPEED);
 			}
 			p_bullet->LoadBullet(renderer, bullet_level);
-			p_bullet->SetRect(this->rect_.x + this->rect_.w / 2, this->rect_.y - p_bullet->GetRect().h - 10);
+			p_bullet->SetRect(this->rect_.x + this->rect_.w / 2 - p_bullet->GetRect().w / 2, this->rect_.y - p_bullet->GetRect().h);
 			p_bullet->SetIsMove(true);
 			bullet_list_.push_back(p_bullet);
+		}
+	}
+	else
+	{
+		if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
+		{
+			if (e.key.keysym.sym == SDLK_RETURN)
+			{
+				if (heart_ > 0)
+				{
+					x_val_ = 0;
+					y_val_ = 0;
+					rect_.x = WINDOW_WIDTH / 2 - SPACE_WIDTH / 2;
+					rect_.y = WINDOW_HEIGHT - SPACE_HEIGHT - 50;
+					status = true;
+				}
+			}
 		}
 	}
 }

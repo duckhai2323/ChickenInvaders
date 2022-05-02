@@ -8,6 +8,7 @@
 #define SPACE_WIDTH 67
 #define SPACE_HEIGHT 62
 #define MAIN_SPEED 10
+#define MAIN_HEART 5
 
 class spaceobject :public baseobject
 {

@@ -28,6 +28,8 @@ const int SPEED_THREAT_STONE = 5;
 const int SPEED_RUN = 3;
 const int SPEED_GIFT = 5;
 
+const int space_heart = 5;
+
 
 
 
