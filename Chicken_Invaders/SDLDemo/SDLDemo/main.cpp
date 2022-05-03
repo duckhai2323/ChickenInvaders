@@ -30,6 +30,8 @@ baseobject stone_small;
 baseobject skill_heart;
 
 // Menu
+bool menu_Run = true;
+SDL_Event e_menu;
 baseobject menu0;
 baseobject menu1;
 TTF_Font* font_menu = NULL;
@@ -41,6 +43,13 @@ textobject text_item[num_item];
 //Return_Game_End_Game
 TTF_Font* font_return = NULL;
 textobject text_return;
+TTF_Font* font_end = NULL;
+textobject text_end;
+int time_end_game = 0;
+
+//Handle_Game
+SDL_Event e;
+bool quit = false;
 
 bool init()
 {
@@ -79,7 +88,8 @@ bool init()
 				font_menu = TTF_OpenFont("font1.ttf", 45);
 				font_Level = TTF_OpenFont("font1.ttf", 30);
 				font_return = TTF_OpenFont("font1.ttf", 50);
-				if (font == NULL || font_menu == NULL || font_Level == NULL||font_return == NULL)
+				font_end = TTF_OpenFont("font1.ttf", 60);
+				if (font == NULL || font_menu == NULL || font_Level == NULL||font_return == NULL||font_end == NULL)
 				{
 					return 0;
 				}
@@ -115,19 +125,21 @@ bool check_mouse_item(const int& x, const int& y, const SDL_Rect& rect)
 	return false;
 }
 
-void menu()
+void menu(std::string item)
 {
 	if (!menu0.LoadImage("menu0_1.png", renderer))
 	{
-		return;
+		menu_Run = false;
+		quit = true;
 	}
 	if (!menu1.LoadImage("menu1_1.png", renderer))
 	{
-		return;
+		menu_Run = false;
+		quit = true;
 	}
 
 
-	text_item[0].SetText("Play Game");
+	text_item[0].SetText(item);
 	text_item[0].SetTextColor(textobject::YELLOW_TYPE);
 	text_item[0].ShowText(font_menu, renderer);
 	poss_item[0].x = WINDOW_WIDTH / 2 - text_item[0].GetRect().w / 2;
@@ -155,7 +167,77 @@ void menu()
 	poss_item[3].y = 10;
 	text_item[3].SetRect(poss_item[3].x, poss_item[3].y);
 
-
+	int xm = 0;
+	int ym = 0;
+	while (menu_Run)
+	{
+		if (menu_num == 0)
+		{
+			menu0.Render(renderer);
+			text_item[0].ShowText(font_menu, renderer);
+			text_item[1].ShowText(font_menu, renderer);
+			text_item[2].ShowText(font_menu, renderer);
+			text_item[0].Render(renderer);
+			text_item[1].Render(renderer);
+			text_item[2].Render(renderer);
+		}
+		else if (menu_num == 1)
+		{
+			menu1.Render(renderer);
+			text_item[3].ShowText(font_menu, renderer);
+			text_item[3].Render(renderer);
+		}
+		while (SDL_PollEvent(&e_menu))
+		{
+			if (e_menu.type == SDL_QUIT)
+			{
+				menu_Run = false;
+				quit = true;
+			}
+			else if (e_menu.type == SDL_MOUSEMOTION)
+			{
+				xm = e_menu.motion.x;
+				ym = e_menu.motion.y;
+				for (int i = 0; i < num_item; i++)
+				{
+					if (check_mouse_item(xm, ym, text_item[i].GetRect()))
+					{
+						text_item[i].SetTextColor(textobject::WHILE_TYPE);
+					}
+					else text_item[i].SetTextColor(textobject::YELLOW_TYPE);
+				}
+			}
+			else if (e_menu.type == SDL_MOUSEBUTTONDOWN)
+			{
+				xm = e_menu.button.x;
+				ym = e_menu.button.y;
+				for (int i = 0; i < num_item; i++)
+				{
+					if (check_mouse_item(xm, ym, text_item[i].GetRect()))
+					{
+						if (i == 0)
+						{
+							menu_Run = false;
+						}
+						else if (i == 1)
+						{
+							menu_num = 1;
+						}
+						else if (i == 2)
+						{
+							menu_Run = false;
+							quit = true;
+						}
+						else if (i == 3)
+						{
+							menu_num = 0;
+						}
+					}
+				}
+			}
+		}
+	SDL_RenderPresent(renderer);
+	}
 }
 
 void close()
@@ -198,83 +280,6 @@ int  main(int arv,char* argv[])
 		{
 			return 0;
 		}
-		else
-		{
-			//Handle_Menu
-			menu();
-			int xm = 0;
-			int ym = 0;
-			//SDL_GetMouseState(&xm, &ym);
-			bool menu_Run = true;
-			SDL_Event e_menu;
-			while (menu_Run)
-			{
-				if (menu_num == 0)
-				{
-					text_item[0].ShowText(font_menu, renderer);
-					text_item[1].ShowText(font_menu, renderer);
-					text_item[2].ShowText(font_menu, renderer);
-					menu0.Render(renderer);
-					text_item[0].Render(renderer);
-					text_item[1].Render(renderer);
-					text_item[2].Render(renderer);
-				}
-				else if (menu_num == 1)
-				{
-					menu1.Render(renderer);
-					text_item[3].ShowText(font_menu, renderer);
-					text_item[3].Render(renderer);
-				}
-				while (SDL_PollEvent(&e_menu)!=0)
-				{
-					if (e_menu.type == SDL_QUIT)
-					{
-						menu_Run == false;
-						return 0;
-					}
-					else if (e_menu.type == SDL_MOUSEMOTION)
-					{
-						SDL_GetMouseState(&xm, &ym);
-						for (int t = 0; t < num_item; t++)
-						{
-							if (check_mouse_item(xm, ym, text_item[t].GetRect()))
-							{
-								text_item[t].SetTextColor(textobject::WHILE_TYPE);
-							}
-							else text_item[t].SetTextColor(textobject::YELLOW_TYPE);
-						}
-					}
-					else if (e_menu.type == SDL_MOUSEBUTTONDOWN)
-					{
-						xm = e_menu.button.x;
-						ym = e_menu.button.y;
-						for (int i = 0; i < num_item; i++)
-						{
-							if (check_mouse_item(xm, ym, text_item[i].GetRect()))
-							{
-								if (i == 0)
-								{
-									menu_Run = false;
-								}
-								else if (i == 1)
-								{
-									menu_num = 1;
-       							}
-								else if (i == 2)
-								{
-									return 0;
-								}
-								else if (i == 3)
-								{
-									menu_num = 0;
-								}
-							}
-						}
-					}
-				}
-				SDL_RenderPresent(renderer);
-			}
-
 			//Handle_Game
 			background.SetRect(0,run);
 			// Create_Threat
@@ -290,9 +295,8 @@ int  main(int arv,char* argv[])
 				stone_threat->SetStatus(true);
 				stone_.push_back(stone_threat);
 			}
-
-			bool quit = false;
-			SDL_Event e;
+			
+			menu("Play Game");
 			while (!quit)
 			{
 				while (SDL_PollEvent(&e))
@@ -473,6 +477,22 @@ int  main(int arv,char* argv[])
 						text_return.SetRect((WINDOW_WIDTH - text_return.GetRect().w) / 2, (WINDOW_HEIGHT - text_return.GetRect().h) / 2);
 						text_return.Render(renderer);
 					}
+					else
+					{
+						if (time_end_game <= 300)
+						{
+							time_end_game++;
+							text_end.SetText("Over Game !");
+							text_end.ShowText(font_end, renderer);
+							text_end.SetRect((WINDOW_WIDTH - text_end.GetRect().w) / 2, (WINDOW_HEIGHT - text_end.GetRect().h) / 2);
+							text_end.Render(renderer);
+						}
+						else
+						{
+							menu("Play Again !");
+							menu_Run = true;
+						}
+					}
 				}
 
 				//header
@@ -529,7 +549,7 @@ int  main(int arv,char* argv[])
 				SDL_RenderPresent(renderer);
 
 			}
-		}
+		
 	}
 		close();
 		return 0;
