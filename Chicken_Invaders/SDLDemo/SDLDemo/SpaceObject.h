@@ -36,6 +36,7 @@ public:
 		return status;
 	}
 
+	void SetXY(const int& x, const int& y) { x_val_ = x; y_val_ = y; }
 	void SetBulletList(std::vector<bulletobject*> list) { bullet_list_ = list; }
 	std::vector<bulletobject*> GetBulletList () const { return bullet_list_; }
 	void set_bul_type(const int& bul_type) { bullet_type_ = bul_type; }

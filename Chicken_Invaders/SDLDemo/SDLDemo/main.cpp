@@ -50,6 +50,9 @@ int time_end_game = 0;
 //Handle_Game
 SDL_Event e;
 bool quit = false;
+int bullet_level = 0;
+int run = -(SCREEN_WIDTH * 5);
+bool is_run = true;
 
 bool init()
 {
@@ -123,6 +126,30 @@ bool check_mouse_item(const int& x, const int& y, const SDL_Rect& rect)
 		return true;
 	}
 	return false;
+}
+
+void reset()
+{
+	Level = 1;
+    run = -(SCREEN_WIDTH * 5);
+	is_run = true;
+
+	bullet_level = 0;
+	space.set_bul_type(BLASTER);
+	space.SetRect(WINDOW_WIDTH / 2 - SPACE_WIDTH / 2, WINDOW_HEIGHT / 2 - SPACE_HEIGHT / 2);
+	space.SetHeart(MAIN_HEART);
+	space.SetXY(0, 0);
+	space.SetStatus(true);
+	num_stone_died = 0;
+	time_end_game = 0;
+
+	for (int i = 0; i < NUM_STONE_THREAT; i++)
+	{
+		threatstone* stone = stone_.at(i);
+		int Rand = rand() % 1000 + 10;
+		stone->SetRect(Rand, -i * 200);
+		stone->SetStatus(true);
+	}
 }
 
 void menu(std::string item)
@@ -217,6 +244,7 @@ void menu(std::string item)
 					{
 						if (i == 0)
 						{
+							reset();
 							menu_Run = false;
 						}
 						else if (i == 1)
@@ -251,10 +279,7 @@ void close()
 }
 
 int  main(int arv,char* argv[])
-{
-	int run = -(SCREEN_WIDTH*5);
-	bool is_run = true;
-	int bullet_level = 0;
+{	
 	textTime.SetTextColor(textobject::WHILE_TYPE);
 	exp_.Set_Clip();
 	srand(time(NULL));
@@ -491,6 +516,7 @@ int  main(int arv,char* argv[])
 						{
 							menu("Play Again !");
 							menu_Run = true;
+							//reset();
 						}
 					}
 				}
