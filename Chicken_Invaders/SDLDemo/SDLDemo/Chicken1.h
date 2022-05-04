@@ -49,6 +49,16 @@ public:
 		return rect;
 	}
 
+	void SetBulletList(std::vector<bulletobject*> b_list)
+	{
+		bullet_list_chicken = b_list;
+	}
+	std::vector<bulletobject*> GetBulletList() const { return bullet_list_chicken; }
+
+	void InitBullet(SDL_Renderer* renderer);
+	void HandleBullet(SDL_Renderer* renderer);
+
+
 private:
 	int x_val_;
 	int y_val_;
@@ -58,6 +68,7 @@ private:
 	bool status;
 	bool runSpeed;
 
+	std::vector<bulletobject*> bullet_list_chicken;
 
 };
 

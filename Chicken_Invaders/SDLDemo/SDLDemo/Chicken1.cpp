@@ -64,3 +64,40 @@ void chickenobject1::Move()
 		}
 	}
 }
+
+void chickenobject1::InitBullet(SDL_Renderer* renderer)
+{
+	if (status == true)
+	{
+		bulletobject* bullet = new bulletobject;
+		bullet->LoadImage("egg1.png", renderer);
+		bullet->SetY(SPEED_CHICKEN_BULLET);
+		bullet->SetRect(this->rect_.x + CHICKEN_WIDTH / 2 - bullet->GetRect().w / 2, this->rect_.y + CHICKEN_HEIGHT + 10);
+		bullet->SetIsMove(true);
+		bullet_list_chicken.push_back(bullet);
+	}
+}
+
+void chickenobject1::HandleBullet(SDL_Renderer* renderer)
+{
+	if (status == true)
+	{
+		for (int i = 0; i < bullet_list_chicken.size(); i++)
+		{
+			bulletobject* bullet_ = bullet_list_chicken.at(i);
+			if (bullet_ != NULL)
+			{
+				if (bullet_->GetIsMove())
+				{
+					bullet_->HandleMoveChicken();
+					bullet_->Render(renderer);
+				}
+				else
+				{
+					bullet_->SetRect(this->rect_.x + CHICKEN_WIDTH / 2 - bullet_->GetRect().w / 2, this->rect_.y + CHICKEN_HEIGHT + 10);
+					bullet_->SetIsMove(true);
+				}
+			}
+		}
+	}
+}

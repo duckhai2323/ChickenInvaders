@@ -24,6 +24,8 @@ public:
 	void HandleMoveSpace();
 	void LoadBullet(SDL_Renderer* renderer, int bullet_level);
 
+	void HandleMoveChicken();
+
 private:
 	int x_val_;
 	int y_val_;

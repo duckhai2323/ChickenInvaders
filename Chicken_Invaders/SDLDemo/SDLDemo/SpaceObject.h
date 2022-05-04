@@ -16,13 +16,6 @@ public:
 	spaceobject();
 	~spaceobject();
 
-	enum BULLET_SPEED
-	{
-		BLASTER_SPEED = 12,
-		NEUTRON_SPEED = 18,
-		LASER_SPEED = 30
-	};
-
 	void InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_level);
 	void Move();
 	void Show(SDL_Renderer* renderer);

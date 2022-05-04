@@ -376,6 +376,7 @@ int  main(int arv,char* argv[])
 					chicken->SetRect(-i * 100, 370);
 				}
 				chicken->SetStatus(true);
+				chicken->InitBullet(renderer);
 				chicken_.push_back(chicken);
 			}
 			
@@ -526,12 +527,14 @@ int  main(int arv,char* argv[])
 							{
 								chicken_threat->Move();
 								chicken_threat->Show(renderer);
+								
+								chicken_threat->HandleBullet(renderer);
 
 								std::vector<bulletobject*> bull_list = space.GetBulletList();
 								for (int i = 0; i < space.GetBulletList().size(); i++)
 								{
 									bulletobject* BULLET = bull_list.at(i);
-									bool col1 = check_collision(BULLET->GetRect(), chicken_threat->GetRect());
+									bool col1 = check_collision(BULLET->GetRect(), chicken_threat->GetRectChicken());
 									if (col1)
 									{
 										num_stone_died++;
