@@ -87,7 +87,7 @@ void giftobject::MoveGift()
 
 int giftobject::RandomType()
 {
-	int rand_gift_type = rand() %8;
+	int rand_gift_type = rand() % 6;
 	rand_gift_type = rand_gift_type < 4 ? rand_gift_type : 4;
 	return rand_gift_type;
 }

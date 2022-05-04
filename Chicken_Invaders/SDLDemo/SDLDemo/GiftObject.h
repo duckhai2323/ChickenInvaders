@@ -38,6 +38,19 @@ public:
 	void MoveGift();
 	void SetClips();
 	int RandomType();
+	SDL_Rect GetRectGift() const
+	{
+		if (gift_type == LEVEL_UP)
+		{
+			SDL_Rect framRect;
+			framRect.w = LEVEL_UP_WIDTH;
+			framRect.h = LEVEL_UP_HEIGHT;
+			framRect.x = rect_.x;
+			framRect.y = rect_.y;
+			return framRect;
+		}
+		else return GetRect();
+	}
 
 private:
 	int x_val_;

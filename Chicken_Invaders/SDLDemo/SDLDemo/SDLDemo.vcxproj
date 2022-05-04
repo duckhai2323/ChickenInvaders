@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Chicken1.cpp" />
     <ClCompile Include="BulletObject.cpp" />
     <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="GiftObject.cpp" />
@@ -161,6 +162,7 @@
   <ItemGroup>
     <ClInclude Include="BaseObject.h" />
     <ClInclude Include="BulletObject.h" />
+    <ClInclude Include="Chicken1.h" />
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="GiftObject.h" />

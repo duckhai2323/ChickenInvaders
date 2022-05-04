@@ -6,6 +6,7 @@
 #include"TextObject.h"
 #include"ThreatStone.h"
 #include"Explosion.h"
+#include"Chicken1.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -14,6 +15,7 @@ spaceobject space;
 explosion exp_;
 giftobject gift;
 std::vector<threatstone*>stone_;
+std::vector<chickenobject1*>chicken_;
 
 //header
 TTF_Font* font = NULL;
@@ -150,6 +152,32 @@ void reset()
 		stone->SetRect(Rand, -i * 200);
 		stone->SetStatus(true);
 	}
+
+	for (int i = 0; i < NUM_CHIKEN1; i++)
+	{
+		chickenobject1* chicken_threat = chicken_.at(i);
+		if (0 <= i && i <= 9)
+		{
+			chicken_threat->SetRect(-i * 100, 50);
+		}
+		else if (10 <= i && i <= 19)
+		{
+			chicken_threat->SetRect(-i * 100, 130);
+		}
+		else if (20 <= i && i <= 29)
+		{
+			chicken_threat->SetRect(-i * 100, 210);
+		}
+		if (30 <= i && i <= 39)
+		{
+			chicken_threat->SetRect(-i * 100, 290);
+		}
+		if (40 <= i && i <= 49)
+		{
+			chicken_threat->SetRect(-i * 100, 370);
+		}
+		chicken_threat->SetStatus(true);
+	}
 }
 
 void menu(std::string item)
@@ -170,21 +198,21 @@ void menu(std::string item)
 	text_item[0].SetTextColor(textobject::YELLOW_TYPE);
 	text_item[0].ShowText(font_menu, renderer);
 	poss_item[0].x = WINDOW_WIDTH / 2 - text_item[0].GetRect().w / 2;
-	poss_item[0].y = WINDOW_HEIGHT - 250;
+	poss_item[0].y = WINDOW_HEIGHT - 200;
 	text_item[0].SetRect(poss_item[0].x, poss_item[0].y);
 
-	text_item[1].SetText("Information");
+	text_item[1].SetText("Infor");
 	text_item[1].SetTextColor(textobject::YELLOW_TYPE);
 	text_item[1].ShowText(font_menu, renderer);
 	poss_item[1].x = WINDOW_WIDTH / 2 - text_item[1].GetRect().w / 2;
-	poss_item[1].y = WINDOW_HEIGHT - 170;
+	poss_item[1].y = WINDOW_HEIGHT - 130;
 	text_item[1].SetRect(poss_item[1].x, poss_item[1].y);
 
 	text_item[2].SetText("Exit !");
 	text_item[2].SetTextColor(textobject::YELLOW_TYPE);
 	text_item[2].ShowText(font_menu, renderer);
 	poss_item[2].x = WINDOW_WIDTH / 2 - text_item[2].GetRect().w / 2;
-	poss_item[2].y = WINDOW_HEIGHT - 90;
+	poss_item[2].y = WINDOW_HEIGHT - 60;
 	text_item[2].SetRect(poss_item[2].x, poss_item[2].y);
 
 	text_item[3].SetText("Back !");
@@ -320,8 +348,39 @@ int  main(int arv,char* argv[])
 				stone_threat->SetStatus(true);
 				stone_.push_back(stone_threat);
 			}
+
+			for (int i = 0; i < NUM_CHIKEN1; i++)
+			{
+				chickenobject1* chicken = new chickenobject1;
+				chicken->LoadImage("chicken.png",renderer);
+				chicken->SetClips();
+				chicken->SetXY_val(SPEED_CHICKEN, 0);
+				if (0 <= i && i <= 9)
+				{
+					chicken->SetRect(-i * 100, 50);
+				}
+				else if (10 <= i && i <= 19)
+				{
+					chicken->SetRect(-i * 100, 130);
+				}
+				else if (20 <= i && i <= 29)
+				{
+					chicken->SetRect(-i * 100, 210);
+				}
+				if (30 <= i && i <= 39 )
+				{
+					chicken->SetRect(-i * 100, 290);
+				}
+				if (40 <= i && i <= 49)
+				{
+					chicken->SetRect(-i * 100, 370);
+				}
+				chicken->SetStatus(true);
+				chicken_.push_back(chicken);
+			}
 			
 			menu("Play Game");
+
 			while (!quit)
 			{
 				while (SDL_PollEvent(&e))
@@ -455,6 +514,50 @@ int  main(int arv,char* argv[])
 							}
 							
 						}
+
+						for (int i = 0;i < NUM_CHIKEN1;i++)
+						{
+							chickenobject1* chicken_threat = chicken_.at(i);
+							if (chicken_threat == NULL)
+							{
+								return 0;
+							}
+							else
+							{
+								chicken_threat->Move();
+								chicken_threat->Show(renderer);
+
+								std::vector<bulletobject*> bull_list = space.GetBulletList();
+								for (int i = 0; i < space.GetBulletList().size(); i++)
+								{
+									bulletobject* BULLET = bull_list.at(i);
+									bool col1 = check_collision(BULLET->GetRect(), chicken_threat->GetRect());
+									if (col1)
+									{
+										num_stone_died++;
+										chicken_threat->SetRect(chicken_threat->GetRect().x, -WINDOW_HEIGHT);
+										chicken_threat->SetStatus(false);
+										space.RemoveBullet(i);
+									}
+								}
+
+								bool col2 = check_collision(chicken_threat->GetRectChicken(), space.GetRect());
+								if (col2)
+								{
+									chicken_threat->SetRect(chicken_threat->GetRect().x, -WINDOW_HEIGHT);
+									chicken_threat->SetStatus(false);
+									exp_.SetRect(space.GetRect().x, space.GetRect().y);
+									exp_.SetFrame(0);
+									space.SetStatus(false);
+									space.SetRect(-space.GetRect().w, -space.GetRect().h);
+									space.decrease();
+									if (bullet_level >= 1)
+									{
+										bullet_level--;
+									}
+								}
+							}
+						}
 					}
 
 				space.Move();
@@ -466,7 +569,7 @@ int  main(int arv,char* argv[])
 				{
 					gift.MoveGift();
 					gift.Show(renderer);
-					bool colgift = check_collision(gift.GetRect(), space.GetRect());
+					bool colgift = check_collision(gift.GetRectGift(), space.GetRect());
 					if (colgift)
 					{
 						gift.SetIsMoveGift(false);
@@ -511,7 +614,7 @@ int  main(int arv,char* argv[])
 						if (time_end_game <= 300)
 						{
 							time_end_game++;
-							text_end.SetText("Over Game !");
+							text_end.SetText("Game Over !");
 							text_end.ShowText(font_end, renderer);
 							text_end.SetRect((WINDOW_WIDTH - text_end.GetRect().w) / 2, (WINDOW_HEIGHT - text_end.GetRect().h) / 2);
 							text_end.Render(renderer);

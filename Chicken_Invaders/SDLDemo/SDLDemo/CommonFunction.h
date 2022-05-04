@@ -25,8 +25,11 @@ enum Bullet_Level
 
 const int LEVEL_UP = 4;
 const int NUM_STONE_THREAT = 50;
+const int NUM_CHIKEN1 = 50;
+
 const int SPEED_THREAT_STONE = 5;
-const int SPEED_RUN = 3;
+const int SPEED_CHICKEN = 5;
+const int SPEED_RUN = 10;
 const int SPEED_GIFT = 5;
 
 const int space_heart = 5;
