@@ -26,9 +26,13 @@ void giftobject::LoadGift(SDL_Renderer* renderer)
 	{
 		LoadImage("gift3.png", renderer);
 	}
-	else if (gift_type == LEVEL_UP)
+	else if (gift_type == HEART)
 	{
 		LoadImage("gift4.png", renderer);
+	}
+	else if (gift_type == LEVEL_UP)
+	{
+		LoadImage("gift5.png", renderer);
 	}
 }
 
@@ -45,7 +49,7 @@ void giftobject::SetClips()
 
 void giftobject::Show(SDL_Renderer* renderer)
 {
-	if (gift_type < 3)
+	if (gift_type < 4)
 	{
 		if (is_move_gift == true)
 		{
@@ -57,9 +61,9 @@ void giftobject::Show(SDL_Renderer* renderer)
 		if (is_move_gift == true)
 		{
 			SDL_Rect renderQuad{ rect_.x, rect_.y,LEVEL_UP_WIDTH, LEVEL_UP_HEIGHT };
-			SDL_RenderCopy(renderer, b_object, &clips_level[frame / 4], &renderQuad);
+			SDL_RenderCopy(renderer, b_object, &clips_level[frame / 3], &renderQuad);
 			frame++;
-			if (frame / 4 >= 25)
+			if (frame / 3 >= 25)
 			{
 				frame = 0;
 			}
@@ -83,7 +87,7 @@ void giftobject::MoveGift()
 
 int giftobject::RandomType()
 {
-	int rand_gift_type = rand() % 6;
-	rand_gift_type = rand_gift_type < 3 ? rand_gift_type : 3;
+	int rand_gift_type = rand() %8;
+	rand_gift_type = rand_gift_type < 4 ? rand_gift_type : 4;
 	return rand_gift_type;
 }

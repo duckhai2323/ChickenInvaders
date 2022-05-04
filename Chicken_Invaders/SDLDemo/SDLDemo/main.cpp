@@ -471,7 +471,11 @@ int  main(int arv,char* argv[])
 					{
 						gift.SetIsMoveGift(false);
 						gift.SetRect(-gift.GetRect().w, -gift.GetRect().h);
-						if (gift.GetGiftType() == space.get_bul_type() || gift.GetGiftType() == LEVEL_UP)
+						if (gift.GetGiftType() == HEART)
+						{
+							space.SetHeart(space.GetHeart()+1);
+						}
+						else if (gift.GetGiftType() == space.get_bul_type() || gift.GetGiftType() == LEVEL_UP)
 						{
 							if (bullet_level < 3)
 							{

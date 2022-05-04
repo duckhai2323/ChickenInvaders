@@ -19,10 +19,11 @@ enum Bullet_Level
 {
 	BLASTER,
 	NEUTRON,
-	LASER
+	LASER,
+	HEART
 };
 
-const int LEVEL_UP = 3;
+const int LEVEL_UP = 4;
 const int NUM_STONE_THREAT = 50;
 const int SPEED_THREAT_STONE = 5;
 const int SPEED_RUN = 3;
