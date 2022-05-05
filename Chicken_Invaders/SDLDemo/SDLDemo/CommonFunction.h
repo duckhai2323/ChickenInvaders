@@ -29,7 +29,7 @@ const int NUM_CHIKEN1 = 50;
 
 const int SPEED_THREAT_STONE = 5;
 const int SPEED_CHICKEN = 5;
-const int SPEED_CHICKEN_BULLET = 5;
+const int SPEED_CHICKEN_BULLET = 3;
 enum BULLET_SPEED
 {
 	BLASTER_SPEED = 12,

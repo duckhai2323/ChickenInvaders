@@ -44,7 +44,7 @@ void bulletobject::HandleMoveSpace()
 void bulletobject::HandleMoveChicken()
 {
 	rect_.y += y_val_;
-	if (rect_.y + rect_.h > WINDOW_HEIGHT)
+	if (rect_.y + rect_.h >= WINDOW_HEIGHT)
 	{
 		is_move = false;
 	}

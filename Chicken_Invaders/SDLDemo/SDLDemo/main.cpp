@@ -7,12 +7,14 @@
 #include"ThreatStone.h"
 #include"Explosion.h"
 #include"Chicken1.h"
+#include"EggBreak.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 baseobject background;
 spaceobject space;
 explosion exp_;
+eggbreak ebr_;
 giftobject gift;
 std::vector<threatstone*>stone_;
 std::vector<chickenobject1*>chicken_;
@@ -310,6 +312,7 @@ int  main(int arv,char* argv[])
 {	
 	textTime.SetTextColor(textobject::WHILE_TYPE);
 	exp_.Set_Clip();
+	ebr_.SetClips();
 	srand(time(NULL));
 
 	if (!init())
@@ -330,6 +333,10 @@ int  main(int arv,char* argv[])
 			return 0;
 		}
 		if (!exp_.LoadImage("exp.png", renderer))
+		{
+			return 0;
+		}
+		if (!ebr_.LoadImage("eggbreak_1.png", renderer))
 		{
 			return 0;
 		}
@@ -375,8 +382,8 @@ int  main(int arv,char* argv[])
 				{
 					chicken->SetRect(-i * 100, 370);
 				}
-				chicken->SetStatus(true);
 				chicken->InitBullet(renderer);
+				chicken->SetStatus(true);
 				chicken_.push_back(chicken);
 			}
 			
@@ -527,9 +534,8 @@ int  main(int arv,char* argv[])
 							{
 								chicken_threat->Move();
 								chicken_threat->Show(renderer);
-								
 								chicken_threat->HandleBullet(renderer);
-
+								//
 								std::vector<bulletobject*> bull_list = space.GetBulletList();
 								for (int i = 0; i < space.GetBulletList().size(); i++)
 								{
@@ -543,7 +549,7 @@ int  main(int arv,char* argv[])
 										space.RemoveBullet(i);
 									}
 								}
-
+								//
 								bool col2 = check_collision(chicken_threat->GetRectChicken(), space.GetRect());
 								if (col2)
 								{
@@ -557,6 +563,34 @@ int  main(int arv,char* argv[])
 									if (bullet_level >= 1)
 									{
 										bullet_level--;
+									}
+								}
+								//
+								std::vector<bulletobject*> bull_list_chick = chicken_threat->GetBulletList();
+								for (int i = 0; i < bull_list_chick.size(); i++)
+								{
+									bulletobject* bullet_Chicken = bull_list_chick.at(i);
+									if (!bullet_Chicken->GetIsMove())
+									{
+										ebr_.SetRect(bullet_Chicken->GetRect().x, WINDOW_HEIGHT - 40);
+										ebr_.SetFrame(0);
+										while (ebr_.GetFrame() < 40)
+										{
+											ebr_.Show(renderer);
+										}
+									}
+									bool col3 = check_collision(bullet_Chicken->GetRect(), space.GetRect());
+									if (col3)
+									{
+										exp_.SetRect(space.GetRect().x, space.GetRect().y);
+										exp_.SetFrame(0);
+										space.SetStatus(false);
+										space.SetRect(-space.GetRect().w, -space.GetRect().h);
+										space.decrease();
+										if (bullet_level >= 1)
+										{
+											bullet_level--;
+										}
 									}
 								}
 							}
@@ -600,7 +634,6 @@ int  main(int arv,char* argv[])
 				{
 					exp_.RenderExp(renderer);
 				}
-
 
 				//Return _Game
 				if (!space.GetStatus())
