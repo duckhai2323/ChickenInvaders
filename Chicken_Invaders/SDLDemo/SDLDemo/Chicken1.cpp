@@ -97,4 +97,27 @@ void chickenobject1::HandleBullet(SDL_Renderer* renderer)
 			}
 		}
 	}
+	else
+	{
+		for (int i = 0; i < bullet_list_chicken.size(); i++)
+		{
+			bulletobject* bullet = bullet_list_chicken.at(i);
+			if (bullet != NULL)
+			{
+				bullet->SetRect(this->rect_.x + CHICKEN_WIDTH / 2 - bullet->GetRect().w / 2, this->rect_.y + CHICKEN_HEIGHT + 10);
+			}
+		}
+	}
+}
+
+void chickenobject1::ResetBUllet()
+{
+	for (int i = 0; i < bullet_list_chicken.size(); i++)
+	{
+		bulletobject* bullet_ = bullet_list_chicken.at(i);
+		if (bullet_ != NULL)
+		{
+			bullet_->SetRect(this->rect_.x + CHICKEN_WIDTH / 2 - bullet_->GetRect().w / 2, this->rect_.y + CHICKEN_HEIGHT + 10);
+		}
+	}
 }

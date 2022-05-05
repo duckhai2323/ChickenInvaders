@@ -179,6 +179,7 @@ void reset()
 			chicken_threat->SetRect(-i * 100, 370);
 		}
 		chicken_threat->SetStatus(true);
+		chicken_threat->ResetBUllet();
 	}
 }
 
@@ -203,7 +204,7 @@ void menu(std::string item)
 	poss_item[0].y = WINDOW_HEIGHT - 200;
 	text_item[0].SetRect(poss_item[0].x, poss_item[0].y);
 
-	text_item[1].SetText("Infor");
+	text_item[1].SetText("Information");
 	text_item[1].SetTextColor(textobject::YELLOW_TYPE);
 	text_item[1].ShowText(font_menu, renderer);
 	poss_item[1].x = WINDOW_WIDTH / 2 - text_item[1].GetRect().w / 2;
@@ -582,6 +583,7 @@ int  main(int arv,char* argv[])
 									bool col3 = check_collision(bullet_Chicken->GetRect(), space.GetRect());
 									if (col3)
 									{
+										bullet_Chicken->SetIsMove(false);
 										exp_.SetRect(space.GetRect().x, space.GetRect().y);
 										exp_.SetFrame(0);
 										space.SetStatus(false);

@@ -1,1 +1,3 @@
-﻿  SDLDemo.vcxproj -> C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\x64\Debug\SDLDemo.exe
+﻿  main.cpp
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(317,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  SDLDemo.vcxproj -> C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\x64\Debug\SDLDemo.exe

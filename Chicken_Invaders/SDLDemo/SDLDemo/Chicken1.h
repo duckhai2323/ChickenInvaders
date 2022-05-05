@@ -57,6 +57,7 @@ public:
 
 	void InitBullet(SDL_Renderer* renderer);
 	void HandleBullet(SDL_Renderer* renderer);
+	void ResetBUllet();
 
 
 private:
