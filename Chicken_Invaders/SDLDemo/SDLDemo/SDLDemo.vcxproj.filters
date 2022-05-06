@@ -48,6 +48,9 @@
     <ClCompile Include="EggBreak.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="kfc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonFunction.h">
@@ -78,6 +81,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EggBreak.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kfc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

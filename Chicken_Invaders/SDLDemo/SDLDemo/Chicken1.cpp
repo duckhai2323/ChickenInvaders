@@ -121,3 +121,31 @@ void chickenobject1::ResetBUllet()
 		}
 	}
 }
+
+void chickenobject1::InitKfc(SDL_Renderer* renderer)
+{
+	int Rand = rand() % 4;
+	kfc.LoadImage("kfc"+std::to_string(Rand) + ".png", renderer);
+	kfc.SetXY_val(0, SPEED_KFC);
+	kfc.SetKfcStatus(true);
+}
+
+void chickenobject1::HandleKfc(SDL_Renderer* renderer)
+{
+	if (status == false)
+	{
+		if (kfc.GetStatus())
+		{
+			kfc.Render(renderer);
+			kfc.Handle();
+		}
+		else
+		{
+			kfc.SetRect((this->rect_.x + CHICKEN_WIDTH / 2 - kfc.GetRect().w / 2), (this->rect_.y + this->rect_.h / 2 - CHICKEN_HEIGHT / 2));
+		}
+	}
+	else
+	{
+		kfc.SetRect((this->rect_.x + CHICKEN_WIDTH / 2 - kfc.GetRect().w / 2), (this->rect_.y + this->rect_.h / 2 - CHICKEN_HEIGHT / 2));
+	}
+}

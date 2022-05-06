@@ -8,13 +8,13 @@
 #include"Explosion.h"
 #include"Chicken1.h"
 #include"EggBreak.h"
+#include"kfc.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 baseobject background;
 spaceobject space;
 explosion exp_;
-eggbreak ebr_;
 giftobject gift;
 std::vector<threatstone*>stone_;
 std::vector<chickenobject1*>chicken_;
@@ -27,7 +27,7 @@ textobject textLevel;
 int Level = 1;
 textobject text_stone_died;
 int num_stone_died = 0;
-int num_chicken_died = 0;
+int num_kfc = 0;
 textobject text_skill;
 textobject text_heart;
 baseobject stone_small;
@@ -313,7 +313,6 @@ int  main(int arv,char* argv[])
 {	
 	textTime.SetTextColor(textobject::WHILE_TYPE);
 	exp_.Set_Clip();
-	ebr_.SetClips();
 	srand(time(NULL));
 
 	if (!init())
@@ -334,10 +333,6 @@ int  main(int arv,char* argv[])
 			return 0;
 		}
 		if (!exp_.LoadImage("exp.png", renderer))
-		{
-			return 0;
-		}
-		if (!ebr_.LoadImage("eggbreak_1.png", renderer))
 		{
 			return 0;
 		}
@@ -385,6 +380,7 @@ int  main(int arv,char* argv[])
 				}
 				chicken->InitBullet(renderer);
 				chicken->SetStatus(true);
+				chicken->InitKfc(renderer);
 				chicken_.push_back(chicken);
 			}
 			
@@ -536,6 +532,7 @@ int  main(int arv,char* argv[])
 								chicken_threat->Move();
 								chicken_threat->Show(renderer);
 								chicken_threat->HandleBullet(renderer);
+								chicken_threat->HandleKfc(renderer);
 								//
 								std::vector<bulletobject*> bull_list = space.GetBulletList();
 								for (int i = 0; i < space.GetBulletList().size(); i++)
@@ -545,7 +542,7 @@ int  main(int arv,char* argv[])
 									if (col1)
 									{
 										num_stone_died++;
-										chicken_threat->SetRect(chicken_threat->GetRect().x, -WINDOW_HEIGHT);
+										chicken_threat->SetRect(chicken_threat->GetRect().x, WINDOW_HEIGHT);
 										chicken_threat->SetStatus(false);
 										space.RemoveBullet(i);
 									}
@@ -554,7 +551,7 @@ int  main(int arv,char* argv[])
 								bool col2 = check_collision(chicken_threat->GetRectChicken(), space.GetRect());
 								if (col2)
 								{
-									chicken_threat->SetRect(chicken_threat->GetRect().x, -WINDOW_HEIGHT);
+									chicken_threat->SetRect(chicken_threat->GetRect().x, WINDOW_HEIGHT);
 									chicken_threat->SetStatus(false);
 									exp_.SetRect(space.GetRect().x, space.GetRect().y);
 									exp_.SetFrame(0);
@@ -571,15 +568,6 @@ int  main(int arv,char* argv[])
 								for (int i = 0; i < bull_list_chick.size(); i++)
 								{
 									bulletobject* bullet_Chicken = bull_list_chick.at(i);
-									if (!bullet_Chicken->GetIsMove())
-									{
-										ebr_.SetRect(bullet_Chicken->GetRect().x, WINDOW_HEIGHT - 40);
-										ebr_.SetFrame(0);
-										while (ebr_.GetFrame() < 40)
-										{
-											ebr_.Show(renderer);
-										}
-									}
 									bool col3 = check_collision(bullet_Chicken->GetRect(), space.GetRect());
 									if (col3)
 									{
@@ -593,6 +581,22 @@ int  main(int arv,char* argv[])
 										{
 											bullet_level--;
 										}
+									}
+								}
+								//
+								bool col4 = check_collision(chicken_threat->GetRectKfc(), space.GetRect());
+								if (col4)
+								{
+									num_kfc++;
+									chicken_threat->RemoveKfc();
+									if (num_kfc % 10 == 0)
+									{
+										gift.SetIsMoveGift(true);
+										gift.SetY_val(SPEED_GIFT);
+										gift.SetClips();
+										gift.SetGiftType(gift.RandomType());
+										gift.LoadGift(renderer);
+										gift.SetRect(rand() % 1000 + 10, 0);
 									}
 								}
 							}
@@ -661,7 +665,7 @@ int  main(int arv,char* argv[])
 						{
 							menu("Play Again !");
 							menu_Run = true;
-							//reset();
+							reset();
 						}
 					}
 				}
@@ -707,7 +711,7 @@ int  main(int arv,char* argv[])
 				else
 				{
 					stone_small.LoadImage("kfc.png", renderer);
-					std::string num_threat_ = std::to_string(num_chicken_died);
+					std::string num_threat_ = std::to_string(num_kfc);
 					text_stone_died.SetText(str_ + num_threat_);
 
 				}

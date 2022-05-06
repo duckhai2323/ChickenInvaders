@@ -146,6 +146,7 @@
     <ClCompile Include="BulletObject.cpp" />
     <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="GiftObject.cpp" />
+    <ClCompile Include="kfc.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -168,6 +169,7 @@
     <ClInclude Include="EggBreak.h" />
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="GiftObject.h" />
+    <ClInclude Include="kfc.h" />
     <ClInclude Include="ThreatStone.h" />
     <ClInclude Include="SpaceObject.h" />
     <ClInclude Include="TextObject.h" />

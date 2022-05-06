@@ -4,6 +4,7 @@
 #include"CommonFunction.h"
 #include"BaseObject.h"
 #include"BulletObject.h"
+#include"kfc.h"
 
 #define CHICKEN_WIDTH 75
 #define CHICKEN_HEIGHT 68
@@ -59,7 +60,16 @@ public:
 	void HandleBullet(SDL_Renderer* renderer);
 	void ResetBUllet();
 
-
+	void InitKfc(SDL_Renderer* renderer);
+	void HandleKfc(SDL_Renderer* renderer);
+	SDL_Rect GetRectKfc() const
+	{
+		return kfc.GetRect();
+	}
+	void RemoveKfc()
+	{
+		kfc.SetKfcStatus(false);
+	}
 private:
 	int x_val_;
 	int y_val_;
@@ -70,7 +80,7 @@ private:
 	bool runSpeed;
 
 	std::vector<bulletobject*> bullet_list_chicken;
-
+	kfcobject kfc;
 };
 
 #endif
