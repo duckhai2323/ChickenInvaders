@@ -25,6 +25,7 @@ public:
 	int GetY_val() const { return y_val_; }
 
 	void MoveLevel2();
+	void MoveLevel3(const int& a);
 	void Show(SDL_Renderer* renderer);
 	void SetClips();
 

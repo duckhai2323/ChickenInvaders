@@ -57,6 +57,7 @@ bool quit = false;
 int bullet_level = 0;
 int run = -(SCREEN_WIDTH * 5);
 bool is_run = true;
+int chicken_died = 0;
 
 bool init()
 {
@@ -165,20 +166,21 @@ void reset()
 		}
 		else if (10 <= i && i <= 19)
 		{
-			chicken_threat->SetRect(-i * 100, 130);
+			chicken_threat->SetRect((i-10) * 100 + WINDOW_WIDTH, 130);
 		}
 		else if (20 <= i && i <= 29)
 		{
-			chicken_threat->SetRect(-i * 100, 210);
+			chicken_threat->SetRect(-(i-20) * 100, 210);
 		}
 		if (30 <= i && i <= 39)
 		{
-			chicken_threat->SetRect(-i * 100, 290);
+			chicken_threat->SetRect((i-30) * 100+WINDOW_WIDTH, 290);
 		}
 		if (40 <= i && i <= 49)
 		{
-			chicken_threat->SetRect(-i * 100, 370);
+			chicken_threat->SetRect(-(i-40) * 100, 370);
 		}
+		chicken_threat->SetDownBottom(false);
 		chicken_threat->SetStatus(true);
 		chicken_threat->ResetBUllet();
 		chicken_threat->ResetKfc();
@@ -344,9 +346,10 @@ int  main(int arv,char* argv[])
 			for (int i = 0; i < NUM_STONE_THREAT; i++)
 			{
 				threatstone* stone_threat = new threatstone;
-				int stone_rand = rand() % 2 + 1;
+				int stone_rand = rand() % 3 + 1;
 				if (stone_rand == 1) { stone_threat->LoadImage("threat_da_80.png", renderer); }
-				 else stone_threat->LoadImage("threat_da.png", renderer);
+				else if (stone_rand == 2) { stone_threat->LoadImage("threat_da.png", renderer); }
+				else stone_threat->LoadImage("threat_da_boss.png", renderer);
 				int Rand = rand() % 1000 + 10;
 				stone_threat->SetXY(0, SPEED_THREAT_STONE);
 				stone_threat->SetRect(Rand, -i*200);
@@ -359,26 +362,26 @@ int  main(int arv,char* argv[])
 				chickenobject1* chicken = new chickenobject1;
 				chicken->LoadImage("chicken.png",renderer);
 				chicken->SetClips();
-				chicken->SetXY_val(SPEED_CHICKEN, 0);
+				chicken->SetXY_val(SPEED_CHICKEN,SPEED_CHICKEN);
 				if (0 <= i && i <= 9)
 				{
 					chicken->SetRect(-i * 100, 50);
 				}
 				else if (10 <= i && i <= 19)
 				{
-					chicken->SetRect(-i * 100, 130);
+					chicken->SetRect((i-10) * 100 + WINDOW_WIDTH, 130);
 				}
 				else if (20 <= i && i <= 29)
 				{
-					chicken->SetRect(-i * 100, 210);
+					chicken->SetRect(-(i-20) * 100, 210);
 				}
 				if (30 <= i && i <= 39 )
 				{
-					chicken->SetRect(-i * 100, 290);
+					chicken->SetRect( (i-30) * 100 + WINDOW_WIDTH, 290);
 				}
 				if (40 <= i && i <= 49)
 				{
-					chicken->SetRect(-i * 100, 370);
+					chicken->SetRect(-(i-40) * 100, 370);
 				}
 				chicken->InitBullet(renderer);
 				chicken->SetStatus(true);
@@ -526,46 +529,210 @@ int  main(int arv,char* argv[])
 							
 						}
 
-						for (int i = 0;i < NUM_CHIKEN1;i++)
+						if (Level == 2)
 						{
-							chickenobject1* chicken_threat = chicken_.at(i);
-							if (chicken_threat == NULL)
+
+							for (int i = 0; i < NUM_CHIKEN1; i++)
 							{
-								return 0;
+								chickenobject1* chicken_threat = chicken_.at(i);
+								if (chicken_threat == NULL)
+								{
+									return 0;
+								}
+								else
+								{
+									chicken_threat->MoveLevel2();
+									chicken_threat->Show(renderer);
+									chicken_threat->HandleBullet(renderer);
+									chicken_threat->HandleKfc(renderer);
+									//
+									std::vector<bulletobject*> bull_list = space.GetBulletList();
+									for (int i = 0; i < space.GetBulletList().size(); i++)
+									{
+										bulletobject* BULLET = bull_list.at(i);
+										bool col1 = check_collision(BULLET->GetRect(), chicken_threat->GetRectChicken());
+										if (col1)
+										{
+											if (BULLET->GetBulletType() == ROCKET)
+											{
+												exp_.SetRect(BULLET->GetRect().x - 20, BULLET->GetRect().y - 20);
+												exp_.SetFrame(0);
+											}
+											else
+											{
+												space.RemoveBullet(i);
+											}
+											chicken_died++;
+											chicken_threat->SetRect(chicken_threat->GetRect().x, WINDOW_HEIGHT);
+											chicken_threat->SetStatus(false);
+										}
+									}
+									//
+									bool col2 = check_collision(chicken_threat->GetRectChicken(), space.GetRect());
+									if (col2)
+									{
+										chicken_died++;
+										chicken_threat->SetRect(chicken_threat->GetRect().x, WINDOW_HEIGHT);
+										chicken_threat->SetStatus(false);
+										exp_.SetRect(space.GetRect().x, space.GetRect().y);
+										exp_.SetFrame(0);
+										space.SetStatus(false);
+										space.SetRect(-space.GetRect().w, -space.GetRect().h);
+										space.decrease();
+										if (bullet_level >= 1)
+										{
+											bullet_level--;
+										}
+									}
+									//
+									std::vector<bulletobject*> bull_list_chick = chicken_threat->GetBulletList();
+									for (int i = 0; i < bull_list_chick.size(); i++)
+									{
+										bulletobject* bullet_Chicken = bull_list_chick.at(i);
+										bool col3 = check_collision(bullet_Chicken->GetRect(), space.GetRect());
+										if (col3)
+										{
+											bullet_Chicken->SetIsMove(false);
+											exp_.SetRect(space.GetRect().x, space.GetRect().y);
+											exp_.SetFrame(0);
+											space.SetStatus(false);
+											space.SetRect(-space.GetRect().w, -space.GetRect().h);
+											space.decrease();
+											if (bullet_level >= 1)
+											{
+												bullet_level--;
+											}
+										}
+									}
+									//
+									bool col4 = check_collision(chicken_threat->GetRectKfc(), space.GetRect());
+									if (col4)
+									{
+										if (chicken_threat->GetTypeKfc_() == kfcobject::kfc0 || chicken_threat->GetTypeKfc_() == kfcobject::kfc1)
+										{
+											num_kfc++;
+										}
+										else if (chicken_threat->GetTypeKfc_() == kfcobject::kfc2)
+										{
+											num_kfc += 5;
+										}
+										else if (chicken_threat->GetTypeKfc_() == kfcobject::kfc3)
+										{
+											num_kfc += 10;
+										}
+										chicken_threat->RemoveKfc();
+										if (num_kfc % 10 == 0)
+										{
+											gift.SetIsMoveGift(true);
+											gift.SetY_val(SPEED_GIFT);
+											gift.SetClips();
+											gift.SetGiftType(gift.RandomType());
+											gift.LoadGift(renderer);
+											gift.SetRect(rand() % 1000 + 10, 0);
+										}
+									}
+								}
 							}
-							else
+						}
+
+						if (chicken_died == NUM_CHIKEN1)
+						{
+							Level++;
+							if (Level == 3)
 							{
-								chicken_threat->MoveLevel2();
-								chicken_threat->Show(renderer);
-								chicken_threat->HandleBullet(renderer);
-								chicken_threat->HandleKfc(renderer);
-								//
+								for (int i = 0; i < NUM_CHIKEN1; i++)
+								{
+									chickenobject1* chicken2 = chicken_.at(i);
+									if (i >= 0 && i <= 4)
+									{
+										chicken2->SetRect(112.5, -i * 80);
+									}
+									else if (i >= 5 && i <= 9)
+									{
+										chicken2->SetRect(212.5, -i * 80);
+									}
+									else if (i >= 10 && i <= 14)
+									{
+										chicken2->SetRect(312.5, -i * 80);
+									}
+									else if (i >= 15 && i <= 19)
+									{
+										chicken2->SetRect(412.5, -i * 80);
+									}
+									else if (i >= 20 && i <= 24)
+									{
+										chicken2->SetRect(512.5, -i * 80);
+									}
+									else if (i >= 25 && i <= 29)
+									{
+										chicken2->SetRect(612.5, -i * 80);
+									}
+									else if (i >= 30 && i <= 34)
+									{
+										chicken2->SetRect(712.5, -i * 80);
+									}
+									else if (i >= 35 && i <= 39)
+									{
+										chicken2->SetRect(812.5, -i * 80);
+									}
+									else if (i >= 40 && i <= 44)
+									{
+										chicken2->SetRect(912.5, -i * 80);
+									}
+									else if (i >= 45 && i <= 49)
+									{
+										chicken2->SetRect(1012.5, -i * 80);
+									}
+									chicken2->SetDownBottom(false);
+									chicken2->SetStatus(true);
+									chicken2->ResetBUllet();
+									chicken2->ResetKfc();
+								}
+							}
+							chicken_died = 0;
+						}
+
+						if (Level == 3)
+						{
+							for (int i = 0; i < NUM_CHIKEN1; i++)
+							{
+								chickenobject1* chicken2_ = chicken_.at(i);
+								int t = i%5;
+								chicken2_->MoveLevel3(t);
+								chicken2_->Show(renderer);
+								chicken2_->HandleBullet(renderer);
+								chicken2_->HandleKfc(renderer);
+								
+								//col1
 								std::vector<bulletobject*> bull_list = space.GetBulletList();
 								for (int i = 0; i < space.GetBulletList().size(); i++)
 								{
 									bulletobject* BULLET = bull_list.at(i);
-									bool col1 = check_collision(BULLET->GetRect(), chicken_threat->GetRectChicken());
+									bool col1 = check_collision(BULLET->GetRect(), chicken2_->GetRectChicken());
 									if (col1)
 									{
 										if (BULLET->GetBulletType() == ROCKET)
 										{
-											exp_.SetRect(BULLET->GetRect().x-20, BULLET->GetRect().y-20);
+											exp_.SetRect(BULLET->GetRect().x - 20, BULLET->GetRect().y - 20);
 											exp_.SetFrame(0);
 										}
 										else
 										{
-										space.RemoveBullet(i);
+											space.RemoveBullet(i);
 										}
-										chicken_threat->SetRect(chicken_threat->GetRect().x, WINDOW_HEIGHT);
-										chicken_threat->SetStatus(false);
+										chicken_died++;
+										chicken2_->SetRect(chicken2_->GetRect().x, WINDOW_HEIGHT);
+										chicken2_->SetStatus(false);
 									}
 								}
-								//
-								bool col2 = check_collision(chicken_threat->GetRectChicken(), space.GetRect());
+
+								//col2
+								bool col2 = check_collision(chicken2_->GetRectChicken(), space.GetRect());
 								if (col2)
 								{
-									chicken_threat->SetRect(chicken_threat->GetRect().x, WINDOW_HEIGHT);
-									chicken_threat->SetStatus(false);
+									chicken_died++;
+									chicken2_->SetRect(chicken2_->GetRect().x, WINDOW_HEIGHT);
+									chicken2_->SetStatus(false);
 									exp_.SetRect(space.GetRect().x, space.GetRect().y);
 									exp_.SetFrame(0);
 									space.SetStatus(false);
@@ -576,8 +743,9 @@ int  main(int arv,char* argv[])
 										bullet_level--;
 									}
 								}
-								//
-								std::vector<bulletobject*> bull_list_chick = chicken_threat->GetBulletList();
+
+								//col3
+								std::vector<bulletobject*> bull_list_chick = chicken2_->GetBulletList();
 								for (int i = 0; i < bull_list_chick.size(); i++)
 								{
 									bulletobject* bullet_Chicken = bull_list_chick.at(i);
@@ -596,23 +764,24 @@ int  main(int arv,char* argv[])
 										}
 									}
 								}
-								//
-								bool col4 = check_collision(chicken_threat->GetRectKfc(), space.GetRect());
+
+								//col3
+								bool col4 = check_collision(chicken2_->GetRectKfc(), space.GetRect());
 								if (col4)
 								{
-									if (chicken_threat->GetTypeKfc_() == kfcobject::kfc0|| chicken_threat->GetTypeKfc_() == kfcobject::kfc1)
+									if (chicken2_->GetTypeKfc_() == kfcobject::kfc0 || chicken2_->GetTypeKfc_() == kfcobject::kfc1)
 									{
 										num_kfc++;
 									}
-									else if (chicken_threat->GetTypeKfc_() == kfcobject::kfc2)
+									else if (chicken2_->GetTypeKfc_() == kfcobject::kfc2)
 									{
 										num_kfc += 5;
 									}
-									else if (chicken_threat->GetTypeKfc_() == kfcobject::kfc3)
+									else if (chicken2_->GetTypeKfc_() == kfcobject::kfc3)
 									{
 										num_kfc += 10;
 									}
-									chicken_threat->RemoveKfc();
+									chicken2_->RemoveKfc();
 									if (num_kfc % 10 == 0)
 									{
 										gift.SetIsMoveGift(true);

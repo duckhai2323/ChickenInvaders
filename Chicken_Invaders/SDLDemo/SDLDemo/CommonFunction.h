@@ -40,7 +40,7 @@ enum BULLET_SPEED
 };
 const int SPEED_ROCKET = 2;
 
-const int SPEED_RUN = 83;
+const int SPEED_RUN = 3;
 const int SPEED_GIFT = 5;
 
 const int space_heart = 5;

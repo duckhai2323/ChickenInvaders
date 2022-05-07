@@ -65,6 +65,36 @@ void chickenobject1::MoveLevel2()
 	}
 }
 
+void chickenobject1::MoveLevel3(const int& a)
+{
+	if (status == true)
+	{
+		if (runSpeed == false)
+		{
+			rect_.y += y_val_;
+			if (rect_.y + CHICKEN_HEIGHT >= WINDOW_HEIGHT)
+			{
+				runSpeed = true;
+			}
+		}
+		else
+		{
+			if (rect_.y <= 50 + 80 * a)
+			{
+				rect_.y += 0;
+			}
+			else
+			{
+			rect_.y -= y_val_;
+
+			}
+		}
+	}
+}
+
+
+
+
 void chickenobject1::InitBullet(SDL_Renderer* renderer)
 {
 		bulletobject* bullet = new bulletobject;

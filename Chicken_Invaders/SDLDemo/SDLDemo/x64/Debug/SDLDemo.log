@@ -1,1 +1,13 @@
-﻿  SDLDemo.vcxproj -> C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\x64\Debug\SDLDemo.exe
+﻿  main.cpp
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(320,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(648,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(652,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(656,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(660,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(664,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(668,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(672,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(676,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(680,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(684,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+  SDLDemo.vcxproj -> C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\x64\Debug\SDLDemo.exe
