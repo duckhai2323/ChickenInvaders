@@ -10,4 +10,14 @@ C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(
 C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(676,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
 C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(680,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
 C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(684,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(700,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(704,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(708,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(712,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(716,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(720,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(724,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(728,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(732,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\SDLDemo\main.cpp(736,29): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
   SDLDemo.vcxproj -> C:\Users\Dell\Desktop\ChickenInvaders\Chicken_Invaders\SDLDemo\x64\Debug\SDLDemo.exe

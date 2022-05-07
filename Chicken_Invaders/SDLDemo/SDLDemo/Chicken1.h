@@ -26,6 +26,7 @@ public:
 
 	void MoveLevel2();
 	void MoveLevel3(const int& a);
+	void MoveLevel4();
 	void Show(SDL_Renderer* renderer);
 	void SetClips();
 

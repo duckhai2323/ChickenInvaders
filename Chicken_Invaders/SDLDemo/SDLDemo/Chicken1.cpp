@@ -92,6 +92,29 @@ void chickenobject1::MoveLevel3(const int& a)
 	}
 }
 
+void chickenobject1::MoveLevel4()
+{
+	if (status == true)
+	{
+		if (runSpeed == false)
+		{
+			rect_.y += y_val_;
+			if (rect_.y + CHICKEN_HEIGHT >= WINDOW_HEIGHT)
+			{
+				runSpeed = true;
+			}
+		}
+		else
+		{
+			rect_.y -= y_val_;
+			if (rect_.y <= 0)
+			{
+				runSpeed = false;
+			}
+		}
+	}
+}
+
 
 
 
