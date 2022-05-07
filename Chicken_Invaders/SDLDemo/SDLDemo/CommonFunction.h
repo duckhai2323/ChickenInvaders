@@ -20,7 +20,8 @@ enum Bullet_Level
 	BLASTER,
 	NEUTRON,
 	LASER,
-	HEART
+	HEART,
+	ROCKET  =  5 
 };
 
 const int LEVEL_UP = 4;
@@ -37,8 +38,9 @@ enum BULLET_SPEED
 	NEUTRON_SPEED = 18,
 	LASER_SPEED = 30
 };
+const int SPEED_ROCKET = 2;
 
-const int SPEED_RUN = 3;
+const int SPEED_RUN = 83;
 const int SPEED_GIFT = 5;
 
 const int space_heart = 5;

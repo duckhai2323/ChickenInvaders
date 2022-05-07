@@ -30,6 +30,10 @@ void bulletobject::LoadBullet(SDL_Renderer* renderer, int bullet_level)
 		std::string laster_str = "laser" + std::to_string(bullet_level) + ".png";
 		LoadImage(laster_str, renderer);
 	}
+	else if (bullet_type == ROCKET)
+	{
+		LoadImage("rocket_1.png", renderer);
+	}
 }
 
 void bulletobject::HandleMoveSpace()
@@ -41,10 +45,28 @@ void bulletobject::HandleMoveSpace()
 	}
 }
 
-void bulletobject::HandleMoveChicken()
+void bulletobject::HandleMoveChicken(SDL_Renderer* renderer)
 {
 	rect_.y += y_val_;
-	if (rect_.y + rect_.h >= WINDOW_HEIGHT)
+	if (rect_.y  >= WINDOW_HEIGHT)
+	{
+		egg_.LoadImage("eggbreak.png", renderer);
+		egg_.SetRect(this->rect_.x,WINDOW_HEIGHT-30);
+		egg_.SetClips();
+		egg_.SetFrame(0);
+		while (egg_.GetFrame() < 40)
+		{
+			egg_.Show(renderer);
+		}
+		is_move = false;
+	}
+}
+
+void bulletobject::HandleMoveRocket()
+{
+	rect_.x += x_val_;
+	rect_.y -= y_val_;
+	if (rect_.y + rect_.h <= 0)
 	{
 		is_move = false;
 	}

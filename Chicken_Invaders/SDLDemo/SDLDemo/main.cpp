@@ -144,6 +144,7 @@ void reset()
 	space.SetHeart(MAIN_HEART);
 	space.SetXY(0, 0);
 	space.SetStatus(true);
+	space.SetKfc(0);
 	num_stone_died = 0;
 	time_end_game = 0;
 
@@ -180,6 +181,7 @@ void reset()
 		}
 		chicken_threat->SetStatus(true);
 		chicken_threat->ResetBUllet();
+		chicken_threat->ResetKfc();
 	}
 }
 
@@ -394,7 +396,11 @@ int  main(int arv,char* argv[])
 					{
 						quit = true;
 					}
-					else space.InputAction(e,renderer,bullet_level);
+					else
+					{
+						space.InputAction(e, renderer, bullet_level);
+						num_kfc = space.GetKfc();
+					}
 				}
 
 				SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 0xff);
@@ -529,7 +535,7 @@ int  main(int arv,char* argv[])
 							}
 							else
 							{
-								chicken_threat->Move();
+								chicken_threat->MoveLevel2();
 								chicken_threat->Show(renderer);
 								chicken_threat->HandleBullet(renderer);
 								chicken_threat->HandleKfc(renderer);
@@ -541,10 +547,17 @@ int  main(int arv,char* argv[])
 									bool col1 = check_collision(BULLET->GetRect(), chicken_threat->GetRectChicken());
 									if (col1)
 									{
-										num_stone_died++;
+										if (BULLET->GetBulletType() == ROCKET)
+										{
+											exp_.SetRect(BULLET->GetRect().x-20, BULLET->GetRect().y-20);
+											exp_.SetFrame(0);
+										}
+										else
+										{
+										space.RemoveBullet(i);
+										}
 										chicken_threat->SetRect(chicken_threat->GetRect().x, WINDOW_HEIGHT);
 										chicken_threat->SetStatus(false);
-										space.RemoveBullet(i);
 									}
 								}
 								//
@@ -587,7 +600,18 @@ int  main(int arv,char* argv[])
 								bool col4 = check_collision(chicken_threat->GetRectKfc(), space.GetRect());
 								if (col4)
 								{
-									num_kfc++;
+									if (chicken_threat->GetTypeKfc_() == kfcobject::kfc0|| chicken_threat->GetTypeKfc_() == kfcobject::kfc1)
+									{
+										num_kfc++;
+									}
+									else if (chicken_threat->GetTypeKfc_() == kfcobject::kfc2)
+									{
+										num_kfc += 5;
+									}
+									else if (chicken_threat->GetTypeKfc_() == kfcobject::kfc3)
+									{
+										num_kfc += 10;
+									}
 									chicken_threat->RemoveKfc();
 									if (num_kfc % 10 == 0)
 									{
@@ -606,6 +630,9 @@ int  main(int arv,char* argv[])
 				space.Move();
 				space.Show(renderer);
                 space.HandleBullet(renderer);
+				space.SetKfc(num_kfc);
+				
+
 
 				//Handle_GIft
 				if (gift.GetIsMoveGift())
@@ -665,7 +692,7 @@ int  main(int arv,char* argv[])
 						{
 							menu("Play Again !");
 							menu_Run = true;
-							reset();
+							//reset();
 						}
 					}
 				}

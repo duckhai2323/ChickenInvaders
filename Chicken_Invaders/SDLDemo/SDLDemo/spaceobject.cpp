@@ -11,6 +11,7 @@ spaceobject::spaceobject()
 	y_val_ = 0;
 	bullet_type_ = BLASTER;
 	heart_ = MAIN_HEART;
+	kfc = 0;
 }
 
 spaceobject::~spaceobject()
@@ -47,6 +48,7 @@ void spaceobject::InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_leve
 				break;
 
 			case SDLK_SPACE:
+			{
 				bulletobject* p_bullet = new bulletobject;
 				p_bullet->SetBulletType(bullet_type_);
 				if (bullet_type_ == BLASTER)
@@ -62,10 +64,25 @@ void spaceobject::InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_leve
 					p_bullet->SetY(LASER_SPEED);
 				}
 				p_bullet->LoadBullet(renderer, bullet_level);
-				p_bullet->SetRect(this->rect_.x + this->rect_.w / 2 - p_bullet->GetRect().w/2, this->rect_.y - p_bullet->GetRect().h );
+				p_bullet->SetRect(this->rect_.x + this->rect_.w / 2 - p_bullet->GetRect().w / 2, this->rect_.y - p_bullet->GetRect().h);
 				p_bullet->SetIsMove(true);
 				bullet_list_.push_back(p_bullet);
+			}
 				break;
+			case SDLK_RETURN:
+				if (kfc >= 40)
+				{
+					bulletobject* p_bullet1 = new bulletobject;
+					p_bullet1->SetX(SPEED_ROCKET);
+					p_bullet1->SetY(SPEED_ROCKET + 4);
+					p_bullet1->SetBulletType(ROCKET);
+					p_bullet1->LoadBullet(renderer, 0);
+					p_bullet1->SetRect(this->rect_.x + this->rect_.w - p_bullet1->GetRect().w / 2, this->rect_.y + this->rect_.h / 2 - p_bullet1->GetRect().w / 2 - 20);
+					p_bullet1->SetIsMove(true);
+					bullet_list_.push_back(p_bullet1);
+					kfc -= 40;
+					break;
+				}
 			}
 		}
 		else if (e.type == SDL_KEYUP && e.key.repeat == 0)
@@ -169,7 +186,11 @@ void spaceobject::HandleBullet(SDL_Renderer* renderer)
 		{
 			if (b_bullet->GetIsMove())
 			{
-				b_bullet->HandleMoveSpace();
+				if (b_bullet->GetBulletType() == ROCKET)
+				{
+					b_bullet->HandleMoveRocket();
+				}
+				else b_bullet->HandleMoveSpace();
 				b_bullet->Render(renderer);
 			}
 			else

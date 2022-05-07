@@ -40,7 +40,7 @@ void chickenobject1::Show(SDL_Renderer* renderer)
 	}
 }
 
-void chickenobject1::Move()
+void chickenobject1::MoveLevel2()
 {
 	if (status == true)
 	{
@@ -86,8 +86,8 @@ void chickenobject1::HandleBullet(SDL_Renderer* renderer)
 			{
 				if (bullet_->GetIsMove())
 				{
-					bullet_->HandleMoveChicken();
 					bullet_->Render(renderer);
+					bullet_->HandleMoveChicken(renderer);
 				}
 				else
 				{
@@ -125,7 +125,8 @@ void chickenobject1::ResetBUllet()
 void chickenobject1::InitKfc(SDL_Renderer* renderer)
 {
 	int Rand = rand() % 4;
-	kfc.LoadImage("kfc"+std::to_string(Rand) + ".png", renderer);
+	kfc.SetKfcType(Rand);
+	kfc.LoadKfc(renderer);
 	kfc.SetXY_val(0, SPEED_KFC);
 	kfc.SetKfcStatus(true);
 }
@@ -148,4 +149,10 @@ void chickenobject1::HandleKfc(SDL_Renderer* renderer)
 	{
 		kfc.SetRect((this->rect_.x + CHICKEN_WIDTH / 2 - kfc.GetRect().w / 2), (this->rect_.y + this->rect_.h / 2 - CHICKEN_HEIGHT / 2));
 	}
+}
+
+void chickenobject1::ResetKfc()
+{
+	kfc.SetKfcStatus(true);
+	kfc.SetRect((this->rect_.x + CHICKEN_WIDTH / 2 - kfc.GetRect().w / 2), (this->rect_.y + this->rect_.h / 2 - CHICKEN_HEIGHT / 2));
 }

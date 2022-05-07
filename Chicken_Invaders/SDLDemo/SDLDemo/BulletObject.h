@@ -3,6 +3,7 @@
 
 #include"CommonFunction.h"
 #include"BaseObject.h"
+#include"EggBreak.h"
 
 class bulletobject :public baseobject
 {
@@ -24,13 +25,15 @@ public:
 	void HandleMoveSpace();
 	void LoadBullet(SDL_Renderer* renderer, int bullet_level);
 
-	void HandleMoveChicken();
+	void HandleMoveChicken(SDL_Renderer* renderer);
+	void HandleMoveRocket();
 
 private:
 	int x_val_;
 	int y_val_;
 	bool is_move;
 	int bullet_type;
+	eggbreak egg_;
 };
 
 #endif

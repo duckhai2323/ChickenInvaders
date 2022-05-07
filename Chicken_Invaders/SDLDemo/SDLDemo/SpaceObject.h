@@ -41,6 +41,12 @@ public:
 	int GetHeart() const { return heart_; }
 	void decrease() { heart_--; }
 
+	void SetKfc(const int& kfc_)
+	{
+		kfc = kfc_;
+	}
+	int GetKfc() const { return kfc; }
+
 private:
 	int x_val_;
 	int y_val_;
@@ -49,6 +55,8 @@ private:
 	int bullet_type_;
 	int heart_;
 	std::vector<bulletobject*> bullet_list_;
+
+	int kfc;
 };
 
 #endif

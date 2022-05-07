@@ -24,7 +24,7 @@ public:
 	int GetX_val() const { return x_val_; }
 	int GetY_val() const { return y_val_; }
 
-	void Move();
+	void MoveLevel2();
 	void Show(SDL_Renderer* renderer);
 	void SetClips();
 
@@ -60,6 +60,7 @@ public:
 	void HandleBullet(SDL_Renderer* renderer);
 	void ResetBUllet();
 
+	int GetTypeKfc_() const { return kfc.GetKfcType(); }
 	void InitKfc(SDL_Renderer* renderer);
 	void HandleKfc(SDL_Renderer* renderer);
 	SDL_Rect GetRectKfc() const
@@ -70,6 +71,7 @@ public:
 	{
 		kfc.SetKfcStatus(false);
 	}
+	void ResetKfc();
 private:
 	int x_val_;
 	int y_val_;
@@ -80,6 +82,7 @@ private:
 	bool runSpeed;
 
 	std::vector<bulletobject*> bullet_list_chicken;
+
 	kfcobject kfc;
 };
 
