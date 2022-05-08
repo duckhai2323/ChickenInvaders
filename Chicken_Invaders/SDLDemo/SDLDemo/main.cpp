@@ -55,8 +55,9 @@ int time_end_game = 0;
 SDL_Event e;
 bool quit = false;
 int bullet_level = 0;
-int run = -(SCREEN_WIDTH * 5);
+int run = -(SCREEN_WIDTH * 9);
 bool is_run = true;
+bool is_run_boss = true;
 int chicken_died = 0;
 
 bool init()
@@ -136,7 +137,7 @@ bool check_mouse_item(const int& x, const int& y, const SDL_Rect& rect)
 void reset()
 {
 	Level = 1;
-    run = -(SCREEN_WIDTH * 5);
+    run = -(SCREEN_WIDTH * 9);
 	is_run = true;
 
 	bullet_level = 0;
@@ -328,7 +329,7 @@ int  main(int arv,char* argv[])
 
 		std::string level = "Level : ";
 		std::string str_ = " : ";
-		if (!background.LoadImage("background6.png", renderer))
+		if (!background.LoadImage("background1.png", renderer))
 		{
 			return 0;
 		}
@@ -470,7 +471,7 @@ int  main(int arv,char* argv[])
 						}
 					}
 
-					if (run+SPEED_RUN >= 0)
+					if (run+SPEED_RUN >= -SCREEN_WIDTH*4)
 					{
 						Level++;
 						is_run = false;
@@ -946,6 +947,23 @@ int  main(int arv,char* argv[])
 										gift.SetRect(rand() % 1000 + 10, 0);
 									}
 								}
+							}
+						}
+						if (Level == 5)
+						{
+							if (is_run_boss == true)
+							{
+								run += SPEED_RUN_SKIP;
+								background.SetRect(0, run);
+								background.Render(renderer);
+								if (run + SPEED_RUN_SKIP >= 0)
+								{
+									is_run_boss = false;
+								}
+							}
+							else
+							{
+								background.Render(renderer);
 							}
 						}
 					}
