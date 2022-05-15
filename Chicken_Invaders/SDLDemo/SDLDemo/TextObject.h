@@ -13,7 +13,7 @@ public:
 		BLACK_TYPE,
 		WHILE_TYPE,
 		GREEN_TYPE,
-		YELLOW_TYPE
+		BLUE_TYPE
 	};
 
 	textobject();

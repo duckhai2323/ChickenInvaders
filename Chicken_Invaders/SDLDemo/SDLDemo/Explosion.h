@@ -4,9 +4,9 @@
 #include"CommonFunction.h"
 #include"BaseObject.h"
 
-#define WIDTH_EXP 150
-#define HEIGHT_EXP 165
-#define NUM_FRAME_EXP 8
+#define WIDTH_EXP 300
+#define HEIGHT_EXP 223
+#define NUM_FRAME_EXP 27
 
 class explosion: public baseobject
 {

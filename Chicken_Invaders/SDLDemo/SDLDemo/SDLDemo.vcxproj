@@ -142,10 +142,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BossObject.cpp" />
     <ClCompile Include="Chicken1.cpp" />
     <ClCompile Include="BulletObject.cpp" />
     <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="GiftObject.cpp" />
+    <ClCompile Include="IronObject.cpp" />
     <ClCompile Include="kfc.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -169,6 +171,8 @@
     <ClInclude Include="EggBreak.h" />
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="GiftObject.h" />
+    <ClInclude Include="BossObject.h" />
+    <ClInclude Include="IronObject.h" />
     <ClInclude Include="kfc.h" />
     <ClInclude Include="ThreatStone.h" />
     <ClInclude Include="SpaceObject.h" />

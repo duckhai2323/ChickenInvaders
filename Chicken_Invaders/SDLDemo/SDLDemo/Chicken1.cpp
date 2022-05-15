@@ -115,8 +115,83 @@ void chickenobject1::MoveLevel4()
 	}
 }
 
+void chickenobject1::MoveLevel5_0(const int& a)
+{
+	if (status == true)
+	{
+		if (!runSpeed)
+		{
+			rect_.y += y_val_;
+			if (rect_.y > 60 + (a % 4) * 80)
+			{
+				runSpeed = true;
+			}
+		}
+		else
+		{
+			if (a <= 3)
+			{
+				if (rect_.x >= 250)
+				{
+					rect_.x -= x_val_;
+				}
+			}
+			else if (4 <= a && a <= 7)
+			{
+				if (rect_.x >= 330)
+				{
+					rect_.x -= x_val_;
+				}
+			}
+			else if (8 <= a && a <= 11)
+			{
+				if (rect_.x >= 410)
+				{
+					rect_.x -= x_val_;
+				}
+			}
+		}
+	}
+}
 
-
+void chickenobject1::MoveLevel5_1(const int& a)
+{
+	if (status == true)
+	{
+		if (!runSpeed)
+		{
+			rect_.y += y_val_;
+			if (rect_.y > 60 + (a % 4) * 80)
+			{
+				runSpeed = true;
+			}
+		}
+		else
+		{
+			if (a <= 3)
+			{
+				if (rect_.x <= WINDOW_WIDTH-250 -CHICKEN_WIDTH)
+				{
+					rect_.x += x_val_;
+				}
+			}
+			else if (4 <= a && a <= 7)
+			{
+				if (rect_.x <= WINDOW_WIDTH-330 -CHICKEN_WIDTH)
+				{
+					rect_.x += x_val_;
+				}
+			}
+			else if (8 <= a && a <= 11)
+			{
+				if (rect_.x <= WINDOW_WIDTH-410 -CHICKEN_WIDTH)
+				{
+					rect_.x += x_val_;
+				}
+			}
+		}
+	}
+}
 
 void chickenobject1::InitBullet(SDL_Renderer* renderer)
 {

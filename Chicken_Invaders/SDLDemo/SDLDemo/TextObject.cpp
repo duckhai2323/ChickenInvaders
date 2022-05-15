@@ -32,9 +32,9 @@ void textobject::SetTextColor(const int& x)
 	{
 		text_color = { 173,255,47 };
 	}
-	else if (x == YELLOW_TYPE)
+	else if (x == BLUE_TYPE)
 	{
-		text_color = { 255,255,0 };
+		text_color = { 0,191,255 };
 	}
 }
 

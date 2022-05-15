@@ -2,7 +2,7 @@
 
 explosion::explosion()
 {
-	frame_ = 24;
+	frame_ = 54;
 }
 
 explosion::~explosion()
