@@ -52,6 +52,8 @@ const int SPEED_GIFT = 5;
 const int space_heart = 5;
 const int iron_heart = 5;
 const int boss_heart = 50;
+const int num_item = 5;
+const int num_option = 5;
 
 struct bossStatus
 {
