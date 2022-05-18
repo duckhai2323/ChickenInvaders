@@ -16,23 +16,23 @@ void giftobject::LoadGift(SDL_Renderer* renderer)
 {
 	if (gift_type == BLASTER)
 	{
-		LoadImage("gift1.png", renderer);
+		LoadImage("image//gift1.png", renderer);
 	}
 	else 	if (gift_type == NEUTRON)
 	{
-		LoadImage("gift2.png", renderer);
+		LoadImage("image//gift2.png", renderer);
 	}
 	else 	if (gift_type == LASER)
 	{
-		LoadImage("gift3.png", renderer);
+		LoadImage("image//gift3.png", renderer);
 	}
 	else if (gift_type == HEART)
 	{
-		LoadImage("gift4.png", renderer);
+		LoadImage("image//gift4.png", renderer);
 	}
 	else if (gift_type == LEVEL_UP)
 	{
-		LoadImage("gift5.png", renderer);
+		LoadImage("image//gift5.png", renderer);
 	}
 }
 

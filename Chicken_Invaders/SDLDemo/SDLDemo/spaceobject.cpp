@@ -19,7 +19,7 @@ spaceobject::~spaceobject()
 
 }
 
-void spaceobject::InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_level)
+void spaceobject::InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_level,Mix_Chunk* sound_bullet[3],Mix_Chunk* sound_return)
 {
 	if (status == true)
 	{
@@ -53,14 +53,17 @@ void spaceobject::InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_leve
 				p_bullet->SetBulletType(bullet_type_);
 				if (bullet_type_ == BLASTER)
 				{
+					Mix_PlayChannel(-1, sound_bullet[BLASTER], 0);
 					p_bullet->SetY(BLASTER_SPEED);
 				}
 				else if (bullet_type_ == NEUTRON)
 				{
+					Mix_PlayChannel(-1, sound_bullet[NEUTRON], 0);
 					p_bullet->SetY(NEUTRON_SPEED);
 				}
 				else
 				{
+					Mix_PlayChannel(-1, sound_bullet[LASER], 0);
 					p_bullet->SetY(LASER_SPEED);
 				}
 				p_bullet->LoadBullet(renderer, bullet_level);
@@ -116,14 +119,17 @@ void spaceobject::InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_leve
 			p_bullet->SetBulletType(bullet_type_);
 			if (bullet_type_ == BLASTER)
 			{
+				Mix_PlayChannel(-1, sound_bullet[BLASTER], 0);
 				p_bullet->SetY(BLASTER_SPEED);
 			}
 			else if (bullet_type_ == NEUTRON)
 			{
+				Mix_PlayChannel(-1, sound_bullet[NEUTRON], 0);
 				p_bullet->SetY(NEUTRON_SPEED);
 			}
 			else
 			{
+				Mix_PlayChannel(-1, sound_bullet[LASER], 0);
 				p_bullet->SetY(LASER_SPEED);
 			}
 			p_bullet->LoadBullet(renderer, bullet_level);
@@ -140,6 +146,7 @@ void spaceobject::InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_leve
 			{
 				if (heart_ > 0)
 				{
+					Mix_PlayChannel(-1,sound_return,0);
 					x_val_ = 0;
 					y_val_ = 0;
 					rect_.x = WINDOW_WIDTH / 2 - SPACE_WIDTH / 2;

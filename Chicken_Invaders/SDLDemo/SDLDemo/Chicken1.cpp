@@ -79,7 +79,7 @@ void chickenobject1::MoveLevel3(const int& a)
 		}
 		else
 		{
-			if (rect_.y <= 50 + 80 * a)
+			if (rect_.y <= 50 + 80 * (a%5))
 			{
 				rect_.y += 0;
 			}
@@ -138,14 +138,21 @@ void chickenobject1::MoveLevel5_0(const int& a)
 			}
 			else if (4 <= a && a <= 7)
 			{
-				if (rect_.x >= 330)
+				if (rect_.x >= 340)
 				{
 					rect_.x -= x_val_;
 				}
 			}
 			else if (8 <= a && a <= 11)
 			{
-				if (rect_.x >= 410)
+				if (rect_.x >= 430)
+				{
+					rect_.x -= x_val_;
+				}
+			}
+			else if (12 <= a && a <= 15)
+			{
+				if (rect_.x >= 520)
 				{
 					rect_.x -= x_val_;
 				}
@@ -177,14 +184,21 @@ void chickenobject1::MoveLevel5_1(const int& a)
 			}
 			else if (4 <= a && a <= 7)
 			{
-				if (rect_.x <= WINDOW_WIDTH-330 -CHICKEN_WIDTH)
+				if (rect_.x <= WINDOW_WIDTH-340 -CHICKEN_WIDTH)
 				{
 					rect_.x += x_val_;
 				}
 			}
 			else if (8 <= a && a <= 11)
 			{
-				if (rect_.x <= WINDOW_WIDTH-410 -CHICKEN_WIDTH)
+				if (rect_.x <= WINDOW_WIDTH-430 -CHICKEN_WIDTH)
+				{
+					rect_.x += x_val_;
+				}
+			}
+			else if (12 <= a && a <= 15)
+			{
+				if (rect_.x <= WINDOW_WIDTH - 520 - CHICKEN_WIDTH)
 				{
 					rect_.x += x_val_;
 				}
@@ -195,12 +209,16 @@ void chickenobject1::MoveLevel5_1(const int& a)
 
 void chickenobject1::InitBullet(SDL_Renderer* renderer)
 {
+	int Rand = rand() % 2;
+	if (Rand == 1)
+	{
 		bulletobject* bullet = new bulletobject;
-		bullet->LoadImage("egg2.png", renderer);
+		bullet->LoadImage("image//egg2.png", renderer);
 		bullet->SetY(SPEED_CHICKEN_BULLET);
 		bullet->SetRect(this->rect_.x + CHICKEN_WIDTH / 2 - bullet->GetRect().w / 2, this->rect_.y + CHICKEN_HEIGHT + 10);
 		bullet->SetIsMove(true);
 		bullet_list_chicken.push_back(bullet);
+	}
 }
 
 void chickenobject1::HandleBullet(SDL_Renderer* renderer)

@@ -41,6 +41,20 @@ public:
 
 	void SetCLips();
 	void Show(SDL_Renderer* renderer);
+	void SetHandleLeft()
+	{
+		handle.turn_left = 1;
+		handle.turn_down = 1;
+		handle.turn_right = 0;
+		handle.turn_up = 0;
+	}
+	void SetHandleRight() 
+	{ 
+		handle.turn_right = 1; 
+		handle.turn_down = 1;
+		handle.turn_left = 0;
+		handle.turn_up = 0;
+	}
 	void HandleBoss();
 
 	std::vector<bulletobject*> GetBulletList() const
@@ -48,7 +62,7 @@ public:
 		return bullet_list_boss;
 	}
 	void InitBullet(SDL_Renderer* renderer);
-	void HandleBullet(SDL_Renderer* renderer);
+	void HandleBullet(SDL_Renderer* renderer,SDL_Rect rect1,SDL_Rect rect2);
 
 
 	void SetHeart(const int& heart)
@@ -57,12 +71,22 @@ public:
 	}
 	int GetHeart() const { return heart_; }
 	void Decrease() { heart_--; }
+	void ShowHeart(SDL_Renderer* renderer,const int& h);
+	void ResetBullet()
+	{
+		for (int i = 0; i < bullet_list_boss.size(); i++)
+		{
+			bulletobject* bullet_ = bullet_list_boss.at(i);
+			bullet_->SetRunUp();
+		}
+	}
 
 private:
 	int x_val_;
 	int y_val_;
 	int frame_;
 	bool status_;
+	bossStatus handle;
 	std::vector<bulletobject*> bullet_list_boss;
 	SDL_Rect Clips[NUM_FRAME_BOSS];
 	int heart_;

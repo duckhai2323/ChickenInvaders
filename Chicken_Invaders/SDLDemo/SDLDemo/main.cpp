@@ -15,13 +15,14 @@
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 baseobject background;
+baseobject circle;
 spaceobject space;
 explosion exp_;
 giftobject gift;
 std::vector<threatstone*>stone_;
 std::vector<chickenobject1*>chicken_;
 std::vector<ironobject*> iron_;
-bossobject boss_;
+std::vector<bossobject*> boss_;
 
 //header
 TTF_Font* font = NULL;
@@ -36,6 +37,7 @@ textobject text_skill;
 textobject text_heart;
 baseobject stone_small;
 baseobject skill_heart;
+int theOption = 0;
 
 // Menu
 bool menu_Run = true;
@@ -44,6 +46,7 @@ baseobject menu0;
 baseobject menu1;
 baseobject menu2;
 baseobject optionSpace;
+baseobject tick;
 TTF_Font* font_menu = NULL;
 int menu_num = 0;
 const int num_item = 5;
@@ -62,6 +65,18 @@ TTF_Font* font_end = NULL;
 textobject text_end;
 int time_end_game = 0;
 
+//music
+Mix_Music* music_start = NULL;
+Mix_Chunk* sound_click = NULL;
+Mix_Chunk* sound_bullet[3];
+Mix_Chunk* sound_exp;
+Mix_Chunk* sound_expRocket;
+Mix_Chunk* sound_chicken[2];
+Mix_Chunk* sound_expBoss;
+Mix_Chunk* sound_stone;
+Mix_Chunk* sound_kfc;
+Mix_Chunk* sound_iron;
+
 //Handle_Game
 SDL_Event e;
 bool quit = false;
@@ -70,6 +85,8 @@ int run = -(SCREEN_WIDTH * 9);
 bool is_run = true;
 bool is_run_boss = true;
 int chicken_died = 0;
+int boss_died = 0;
+int iron_died = 0;
 int time_level = 0;
 
 bool init()
@@ -98,18 +115,35 @@ bool init()
 				int imgFlags = IMG_INIT_PNG;
 				if (!(IMG_Init(imgFlags) & imgFlags)) 
 				{
-					return 0;
+					return false;
 				}
+				if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+				{
+					return false;
+				}
+				music_start = Mix_LoadMUS("sound//start.mp3");
+				sound_click = Mix_LoadWAV("sound//click.wav");
+				sound_bullet[BLASTER] = Mix_LoadWAV("sound//blaster.wav");
+				sound_bullet[NEUTRON] = Mix_LoadWAV("sound//neutron.wav");
+				sound_bullet[LASER] = Mix_LoadWAV("sound//laser.wav");
+				sound_exp = Mix_LoadWAV("sound//exp.wav");
+				sound_expRocket = Mix_LoadWAV("sound//exp_rocket.wav");
+				sound_chicken[0] = Mix_LoadWAV("sound//chicken_sound0.wav");
+				sound_chicken[1] = Mix_LoadWAV("sound//chicken_sound1.wav");
+				sound_stone = Mix_LoadWAV("sound//stone.wav");
+				sound_kfc = Mix_LoadWAV("sound//kfc.wav");
+				sound_iron = Mix_LoadWAV("sound//iron.wav");
+				sound_expBoss = Mix_LoadWAV("sound//exp_boss.wav");
 
 				if (TTF_Init() == -1)
 				{
 					return false;
 				}
-				font = TTF_OpenFont("font1.ttf", 25);
-				font_menu = TTF_OpenFont("font.ttf", 40);
-				font_Level = TTF_OpenFont("font1.ttf", 30);
-				font_return = TTF_OpenFont("font1.ttf", 50);
-				font_end = TTF_OpenFont("font1.ttf", 60);
+				font = TTF_OpenFont("font//font1.ttf", 25);
+				font_menu = TTF_OpenFont("font//font0.ttf", 40);
+				font_Level = TTF_OpenFont("font//font1.ttf", 30);
+				font_return = TTF_OpenFont("font//font1.ttf", 50);
+				font_end = TTF_OpenFont("font//font1.ttf", 60);
 				if (font == NULL || font_menu == NULL || font_Level == NULL||font_return == NULL||font_end == NULL)
 				{
 					return 0;
@@ -160,8 +194,13 @@ void reset()
 	space.SetStatus(true);
 	space.SetKfc(0);
 	num_stone_died = 0;
+	chicken_died = 0;
+	boss_died = 0;
+	iron_died = 0;
+	num_kfc = 0;
+	is_run_boss = true;
 	time_end_game = 0;
-	space.LoadImage("space0.png", renderer);
+	time_level = 0;
 
 	for (int i = 0; i < NUM_STONE_THREAT; i++)
 	{
@@ -194,6 +233,7 @@ void reset()
 		{
 			chicken_threat->SetRect(-(i-40) * 100, 370);
 		}
+		chicken_threat->LoadImage("image//chicken.png", renderer);
 		chicken_threat->SetDownBottom(false);
 		chicken_threat->SetStatus(true);
 		chicken_threat->ResetBUllet();
@@ -202,52 +242,73 @@ void reset()
 
 	for (int i = 0; i < NUM_IRON; i++)
 	{
-		ironobject* iron = new ironobject;
+		ironobject* iron = iron_.at(i);
 		if (i >= 0 && i <= 9)
 		{
+			iron->LoadImage("image//iron1.png", renderer);
 			iron->SetRect(0, i * -130);
 		}
 		else if (i >= 10 && i <= 19)
 		{
-			iron->SetRect(WINDOW_WIDTH - iron->GetRect().w, i * -130);
+			iron->LoadImage("image//iron2.png", renderer);
+			iron->SetRect(WINDOW_WIDTH - iron->GetRect().w, (i-10) * -130);
 		}
 		else if (i >= 20 && i <= 31)
 		{
-			iron->SetRect(400, i * -130);
+			iron->LoadImage("image//iron0.png", renderer);
+			iron->SetRect(400, (i-10) * -130);
 		}
 		else if (i >= 32 && i <= 43)
 		{
-			iron->SetRect(700, i * -130);
+			iron->LoadImage("image//iron0.png", renderer);
+			iron->SetRect(700, (i-22) * -130);
 		}
 		iron->SetHeart(iron_heart);
+		iron->SetDegrees(0);
 		iron->SetStatus(true);
 		iron->SetIsRun(false);
-		iron_.push_back(iron);
+	}
+
+	for (int i = 0; i < NUM_BOSS; i++)
+	{
+		bossobject* boss = boss_.at(i);
+		boss->SetHeart(boss_heart);
+		boss->SetRect(WINDOW_WIDTH / 2 - boss->GetRectBoss().w / 2, -500);
+		i == 0 ? boss->SetHandleLeft() : boss->SetHandleRight();
+		boss->ResetBullet();
+		boss->SetStatus(true);
 	}
 }
 
 void menu(std::string item)
 {
-	if (!menu0.LoadImage("menu0_1.png", renderer))
+	if (!menu0.LoadImage("image//menu0_1.png", renderer))
 	{
 		menu_Run = false;
 		quit = true;
 	}
-	if (!menu1.LoadImage("menu1_1.png", renderer))
+	if (!menu1.LoadImage("image//menu1_1.png", renderer))
 	{
 		menu_Run = false;
 		quit = true;
 	}
-	if (!menu2.LoadImage("menu2_1.png", renderer))
+	if (!menu2.LoadImage("image//menu2_1.png", renderer))
 	{
 		menu_Run = false;
 	    quit = true;
 	}
-	if (!optionSpace.LoadImage("space_0.png", renderer))
+	if (!optionSpace.LoadImage("image//space_0.png", renderer))
 	{
 		menu_Run = false;
 		quit = true;
 	}
+	if (!tick.LoadImage("image//tich.png", renderer))
+	{
+		menu_Run = false;
+		quit = true;
+	}
+
+	Mix_PlayMusic(music_start, -1);
 
 	text_item[0].SetText(item);
 	text_item[0].SetTextColor(textobject::BLUE_TYPE);
@@ -285,7 +346,7 @@ void menu(std::string item)
 	text_item[4].SetRect(poss_item[4].x, poss_item[4].y);
 
 	text_option[0].SetText("1 : Space_Blue");
-	text_option[0].SetTextColor(textobject::BLUE_TYPE);
+	text_option[0].SetTextColor(textobject::WHILE_TYPE);
 	text_option[0].ShowText(font_menu, renderer);
 	text_option[0].SetRect(80, 150);
 	
@@ -312,6 +373,8 @@ void menu(std::string item)
 	int xm = 0;
 	int ym = 0;
 	optionSpace.SetRect(520, 150);
+	tick.SetRect(25, 150);
+	space.LoadImage("image//space0.png", renderer);
 	while (menu_Run)
 	{
 		if (menu_num == 0)
@@ -348,6 +411,7 @@ void menu(std::string item)
 			text_option[3].Render(renderer);
 			text_option[4].Render(renderer);
 			optionSpace.Render(renderer);
+			tick.Render(renderer);
 		}
 		while (SDL_PollEvent(&e_menu))
 		{
@@ -375,7 +439,13 @@ void menu(std::string item)
 					{
 						text_option[i].SetTextColor(textobject::WHILE_TYPE);
 					}
-					else text_option[i].SetTextColor(textobject::BLUE_TYPE);
+					else
+					{
+						if (i != theOption)
+						{
+							text_option[i].SetTextColor(textobject::BLUE_TYPE);
+						}
+					}
 				}
 			}
 			else if (e_menu.type == SDL_MOUSEBUTTONDOWN)
@@ -386,8 +456,11 @@ void menu(std::string item)
 				{
 					if (check_mouse_item(xm, ym, text_item[i].GetRect()))
 					{
+						Mix_PlayChannel(-1, sound_click, 0);
 						if (i == 0)
 						{
+							music_start = Mix_LoadMUS("sound//level1.wav");
+							Mix_PlayMusic(music_start,-1);
 							menu_Run = false;
 						}
 						else if (i == 1)
@@ -414,9 +487,14 @@ void menu(std::string item)
 				{
 					if (check_mouse_item(xm, ym, text_option[i].GetRect()))
 					{
+						Mix_PlayChannel(-1, sound_click, 0);
+						text_option[theOption].SetTextColor(textobject::BLUE_TYPE);
+						theOption = i;
+						tick.SetRect(25, 150 + i * 50);
 						theOption_ = std::to_string(i);
-						optionSpace.LoadImage("space_" + theOption_ + ".png", renderer);
-						if (!space.LoadImage("space" + theOption_ + ".png", renderer))
+						text_option[i].SetTextColor(textobject::WHILE_TYPE);
+						optionSpace.LoadImage("image//space_" + theOption_ + ".png", renderer);
+						if (!space.LoadImage("image//space" + theOption_ + ".png", renderer))
 						{
 							return ;
 						}
@@ -425,6 +503,139 @@ void menu(std::string item)
 			}
 		}
 	SDL_RenderPresent(renderer);
+	}
+}
+
+void check_collision_chicken()
+{
+	int num;
+	Level == 5 ? num = 32 : num = NUM_CHIKEN1;
+	for (int i = 0; i < num; i++)
+	{
+		chickenobject1* chicken = chicken_.at(i);
+		switch (Level)
+		{
+		case 2:
+			chicken->MoveLevel2();
+			break;
+		case 3:
+			chicken->MoveLevel3(i);
+			break;
+		case 4:
+			chicken->MoveLevel4();
+			break;
+		case 5:
+			i >= 0 && i <= 15 ? chicken->MoveLevel5_0(i) : chicken->MoveLevel5_1(i - 16);
+			break;
+		}
+		chicken->Show(renderer);
+		chicken->HandleBullet(renderer);
+		chicken->HandleKfc(renderer);
+
+		//col1
+		std::vector<bulletobject*> bull_list = space.GetBulletList();
+		for (int i = 0; i < space.GetBulletList().size(); i++)
+		{
+			bulletobject* BULLET = bull_list.at(i);
+			bool col1 = check_collision(BULLET->GetRect(), chicken->GetRectChicken());
+			if (col1)
+			{
+				if (BULLET->GetBulletType() == ROCKET)
+				{
+					exp_.SetRect(BULLET->GetRect().x - 120, BULLET->GetRect().y - 120);
+					exp_.SetFrame(0);
+					Mix_PlayChannel(-1, sound_expRocket, 0);
+				}
+				else
+				{
+					space.RemoveBullet(i);
+					Mix_PlayChannel(-1, sound_chicken[rand() % 2], 0);
+				}
+				chicken_died++;
+				chicken->SetRect(chicken->GetRect().x, WINDOW_HEIGHT);
+				chicken->SetStatus(false);
+				if (chicken_died % 20 == 0)
+				{
+					gift.SetIsMoveGift(true);
+					gift.SetY_val(SPEED_GIFT);
+					gift.SetClips();
+					gift.SetGiftType(gift.RandomType());
+					gift.LoadGift(renderer);
+					gift.SetRect(rand() % 1000 + 10, 0);
+				}
+			}
+		}
+
+		//col2
+		bool col2 = check_collision(chicken->GetRectChicken(), space.GetRect());
+		if (col2)
+		{
+			chicken_died++;
+			Mix_PlayChannel(-1, sound_exp, 0);
+			chicken->SetRect(chicken->GetRect().x, WINDOW_HEIGHT);
+			chicken->SetStatus(false);
+			exp_.SetRect(space.GetRect().x - 100, space.GetRect().y - 100);
+			exp_.SetFrame(0);
+			space.SetStatus(false);
+			space.SetRect(-space.GetRect().w, WINDOW_HEIGHT);
+			space.decrease();
+			if (space.GetHeart() == 0)
+			{
+				music_start = Mix_LoadMUS("sound//gameover.wav");
+				Mix_PlayMusic(music_start, -1);
+			}
+			if (bullet_level >= 1)
+			{
+				bullet_level--;
+			}
+		}
+
+		//col3
+		std::vector<bulletobject*> bull_list_chick = chicken->GetBulletList();
+		for (int i = 0; i < bull_list_chick.size(); i++)
+		{
+			bulletobject* bullet_Chicken = bull_list_chick.at(i);
+			bool col3 = check_collision(bullet_Chicken->GetRect(), space.GetRect());
+			if (col3)
+			{
+				bullet_Chicken->SetIsMove(false);
+				Mix_PlayChannel(-1, sound_exp, 0);
+				exp_.SetRect(space.GetRect().x - 100, space.GetRect().y - 100);
+				exp_.SetFrame(0);
+				space.SetStatus(false);
+				space.SetRect(-space.GetRect().w, WINDOW_HEIGHT);
+				space.decrease();
+				if (space.GetHeart() == 0)
+				{
+					music_start = Mix_LoadMUS("sound//gameover.wav");
+					Mix_PlayMusic(music_start, -1);
+				}
+				if (bullet_level >= 1)
+				{
+					bullet_level--;
+				}
+			}
+		}
+
+		//col4
+		bool col4 = check_collision(chicken->GetRectKfc(), space.GetRect());
+		if (col4)
+		{
+			Mix_PlayChannel(-1, sound_kfc, 0);
+			if (chicken->GetTypeKfc_() == kfcobject::kfc0 || chicken->GetTypeKfc_() == kfcobject::kfc1)
+			{
+				num_kfc++;
+			}
+			else if (chicken->GetTypeKfc_() == kfcobject::kfc2)
+			{
+				num_kfc += 5;
+			}
+			else if (chicken->GetTypeKfc_() == kfcobject::kfc3)
+			{
+				num_kfc += 10;
+			}
+			chicken->RemoveKfc();
+		}
 	}
 }
 
@@ -442,7 +653,6 @@ int  main(int arv,char* argv[])
 {	
 	textTime.SetTextColor(textobject::WHILE_TYPE);
 	exp_.Set_Clip();
-	boss_.SetCLips();
 	srand(time(NULL));
 
 	if (!init())
@@ -454,31 +664,27 @@ int  main(int arv,char* argv[])
 
 		std::string level = "Level : ";
 		std::string str_ = " : ";
-		if (!background.LoadImage("background1.png", renderer))
+		if (!background.LoadImage("image//background1.png", renderer))
 		{
 			return 0;
 		}
-		if (!exp_.LoadImage("exp_1.png", renderer))
+		if (!exp_.LoadImage("image//exp_1.png", renderer))
 		{
 			return 0;
 		}
-		if(!boss_.LoadImage("boss.png", renderer))
+		if (!circle.LoadImage("image//circle.png", renderer))
 		{
 			return 0;
 		}
 			//Handle_Game
 			background.SetRect(0,run);
-			boss_.SetRect(WINDOW_WIDTH / 2 - boss_.GetRectBoss().w / 2, 100);
-			boss_.SetStatus(true);
-			boss_.SetHeart(boss_heart);
+			
 			// Create_Threat
 			for (int i = 0; i < NUM_STONE_THREAT; i++)
 			{
 				threatstone* stone_threat = new threatstone;
-				int stone_rand = rand() % 3 + 1;
-				if (stone_rand == 1) { stone_threat->LoadImage("threat_da_80.png", renderer); }
-				else if (stone_rand == 2) { stone_threat->LoadImage("threat_da.png", renderer); }
-				else stone_threat->LoadImage("threat_da_boss.png", renderer);
+				int stone_rand = rand() % 3;
+				stone_threat->LoadImage("image//stone"+ std::to_string(stone_rand) + ".png", renderer);
 				int Rand = rand() % 1000 + 10;
 				stone_threat->SetXY(0, SPEED_THREAT_STONE);
 				stone_threat->SetRect(Rand, -i*200);
@@ -489,7 +695,7 @@ int  main(int arv,char* argv[])
 			for (int i = 0; i < NUM_CHIKEN1; i++)
 			{
 				chickenobject1* chicken = new chickenobject1;
-				chicken->LoadImage("chicken.png",renderer);
+				chicken->LoadImage("image//chicken.png",renderer);
 				chicken->SetClips();
 				chicken->SetXY_val(SPEED_CHICKEN,SPEED_CHICKEN);
 				if (0 <= i && i <= 9)
@@ -524,29 +730,42 @@ int  main(int arv,char* argv[])
 				iron->SetXY_val_(SPEED_IRON, SPEED_IRON);
 				if (i >= 0 && i <= 9)
 				{
-				    iron->LoadImage("iron1.png", renderer);
+				    iron->LoadImage("image//iron1.png", renderer);
 					iron->SetRect(0, i * -130);
 				}
 				else if (i >= 10 && i <= 19)
 				{
-					iron->LoadImage("iron2.png", renderer);
-					iron->SetRect(WINDOW_WIDTH - iron->GetRect().w, i * -130);
+					iron->LoadImage("image//iron2.png", renderer);
+					iron->SetRect(WINDOW_WIDTH - iron->GetRect().w, (i-10) * -130);
 				}
 				else if (i >= 20 && i <= 31)
 				{
-					iron->LoadImage("iron0.png", renderer);
-					iron->SetRect(400, i * -130);
+					iron->LoadImage("image//iron0.png", renderer);
+					iron->SetRect(400, (i-10) * -130);
 				}
 				else if (i >= 32 && i <= 43)
 				{
-					iron->LoadImage("iron0.png", renderer);
-					iron->SetRect(700, i * -130);
+					iron->LoadImage("image//iron0.png", renderer);
+					iron->SetRect(700, (i-22) * -130);
 				}
 				iron->SetHeart(iron_heart);
 				iron->SetStatus(true);
 				iron_.push_back(iron);
 			}
 			
+			for (int i = 0; i < NUM_BOSS; i++)
+			{
+				bossobject* boss = new bossobject;
+				boss->LoadImage("image//boss" + std::to_string(i) + ".png", renderer);
+				boss->SetRect(WINDOW_WIDTH / 2 - boss->GetRectBoss().w / 2, -500);
+				boss->SetCLips();
+				i == 0 ? boss->SetHandleLeft() : boss->SetHandleRight();
+				boss->SetStatus(true);
+				boss->SetHeart(boss_heart);
+				boss->SetXY_val(SPEED_BOSS, SPEED_BOSS);
+				boss->InitBullet(renderer);
+				boss_.push_back(boss);
+			}
 			menu("Save the World");
 
 			while (!quit)
@@ -559,7 +778,8 @@ int  main(int arv,char* argv[])
 					}
 					else
 					{
-						space.InputAction(e, renderer, bullet_level);
+
+						space.InputAction(e, renderer, bullet_level,sound_bullet,sound_click);
 						num_kfc = space.GetKfc();
 					}
 				}
@@ -594,7 +814,8 @@ int  main(int arv,char* argv[])
 							if (col1)
 							{
 								num_stone_died++;
-								stone->SetRect(stone->GetRect().x, -WINDOW_HEIGHT);
+								Mix_PlayChannel(-1,sound_stone,0);
+								stone->SetRect(stone->GetRect().x, WINDOW_HEIGHT);
 								stone->SetStatus(false);
 								space.RemoveBullet(i);
 								if (num_stone_died % 10 == 0)
@@ -614,13 +835,19 @@ int  main(int arv,char* argv[])
 						if (col2)
 						{
 							num_stone_died++;
-							stone->SetRect(stone->GetRect().x, -WINDOW_HEIGHT);
+							Mix_PlayChannel(-1, sound_exp, 0);
+							stone->SetRect(stone->GetRect().x, WINDOW_HEIGHT);
 							stone->SetStatus(false);
 							exp_.SetRect(space.GetRect().x - 100, space.GetRect().y-100);
 							exp_.SetFrame(0);
-							space.SetRect(-space.GetRect().w, -space.GetRect().h);
+							space.SetRect(-space.GetRect().w, WINDOW_HEIGHT);
 						    space.SetStatus(false);
 							space.decrease();
+							if (space.GetHeart() == 0)
+							{
+								music_start = Mix_LoadMUS("sound//gameover.wav");
+								Mix_PlayMusic(music_start, -1);
+							}
 							if (bullet_level >= 1)
 							{
 								bullet_level--;
@@ -630,6 +857,8 @@ int  main(int arv,char* argv[])
 
 					if (run+SPEED_RUN >= -SCREEN_WIDTH*4)
 					{
+						music_start = Mix_LoadMUS("sound//level2.wav");
+						Mix_PlayMusic(music_start, -1);
 						Level++;
 						is_run = false;
 					}
@@ -652,7 +881,8 @@ int  main(int arv,char* argv[])
 									if (col1)
 									{
 										num_stone_died++;
-										stone->SetRect(stone->GetRect().x, -WINDOW_HEIGHT);
+										Mix_PlayChannel(-1, sound_stone, 0);
+										stone->SetRect(stone->GetRect().x, WINDOW_HEIGHT);
 										stone->SetStatus(false);
 										space.RemoveBullet(i);
 										if (num_stone_died % 10 ==0)
@@ -671,13 +901,19 @@ int  main(int arv,char* argv[])
 								if (col2)
 								{
 									num_stone_died++;
-									stone->SetRect(stone->GetRect().x, -WINDOW_HEIGHT);
+									Mix_PlayChannel(-1, sound_exp, 0);
+									stone->SetRect(stone->GetRect().x, WINDOW_HEIGHT);
 									stone->SetStatus(false);
 									exp_.SetRect(space.GetRect().x-100, space.GetRect().y-100);
 									exp_.SetFrame(0);
-									space.SetRect(-space.GetRect().w, -space.GetRect().h);
+									space.SetRect(-space.GetRect().w, WINDOW_HEIGHT);
 									space.SetStatus(false);
 									space.decrease();
+									if (space.GetHeart() == 0)
+									{
+										music_start = Mix_LoadMUS("sound//gameover.wav");
+										Mix_PlayMusic(music_start, -1);
+									}
 									if(bullet_level>= 1)
 									{
 										bullet_level--;
@@ -689,108 +925,7 @@ int  main(int arv,char* argv[])
 
 						if (Level == 2)
 						{
-
-							for (int i = 0; i < NUM_CHIKEN1; i++)
-							{
-								chickenobject1* chicken_threat = chicken_.at(i);
-								if (chicken_threat == NULL)
-								{
-									return 0;
-								}
-								else
-								{
-									chicken_threat->MoveLevel2();
-									chicken_threat->Show(renderer);
-									chicken_threat->HandleBullet(renderer);
-									chicken_threat->HandleKfc(renderer);
-									//
-									std::vector<bulletobject*> bull_list = space.GetBulletList();
-									for (int i = 0; i < space.GetBulletList().size(); i++)
-									{
-										bulletobject* BULLET = bull_list.at(i);
-										bool col1 = check_collision(BULLET->GetRect(), chicken_threat->GetRectChicken());
-										if (col1)
-										{
-											if (BULLET->GetBulletType() == ROCKET)
-											{
-												exp_.SetRect(BULLET->GetRect().x - 20 -100 , BULLET->GetRect().y - 20-100);
-												exp_.SetFrame(0);
-											}
-											else
-											{
-												space.RemoveBullet(i);
-											}
-											chicken_died++;
-											chicken_threat->SetRect(chicken_threat->GetRect().x, WINDOW_HEIGHT);
-											chicken_threat->SetStatus(false);
-											if (chicken_died % 20 == 0)
-											{
-												gift.SetIsMoveGift(true);
-												gift.SetY_val(SPEED_GIFT);
-												gift.SetClips();
-												gift.SetGiftType(gift.RandomType());
-												gift.LoadGift(renderer);
-												gift.SetRect(rand() % 1000 + 10, 0);
-											}
-										}
-									}
-									//
-									bool col2 = check_collision(chicken_threat->GetRectChicken(), space.GetRect());
-									if (col2)
-									{
-										chicken_died++;
-										chicken_threat->SetRect(chicken_threat->GetRect().x, WINDOW_HEIGHT);
-										chicken_threat->SetStatus(false);
-										exp_.SetRect(space.GetRect().x-100, space.GetRect().y-100);
-										exp_.SetFrame(0);
-										space.SetStatus(false);
-										space.SetRect(-space.GetRect().w, -space.GetRect().h);
-										space.decrease();
-										if (bullet_level >= 1)
-										{
-											bullet_level--;
-										}
-									}
-									//
-									std::vector<bulletobject*> bull_list_chick = chicken_threat->GetBulletList();
-									for (int i = 0; i < bull_list_chick.size(); i++)
-									{
-										bulletobject* bullet_Chicken = bull_list_chick.at(i);
-										bool col3 = check_collision(bullet_Chicken->GetRect(), space.GetRect());
-										if (col3)
-										{
-											bullet_Chicken->SetIsMove(false);
-											exp_.SetRect(space.GetRect().x-100, space.GetRect().y-100);
-											exp_.SetFrame(0);
-											space.SetStatus(false);
-											space.SetRect(-space.GetRect().w, -space.GetRect().h);
-											space.decrease();
-											if (bullet_level >= 1)
-											{
-												bullet_level--;
-											}
-										}
-									}
-									//
-									bool col4 = check_collision(chicken_threat->GetRectKfc(), space.GetRect());
-									if (col4)
-									{
-										if (chicken_threat->GetTypeKfc_() == kfcobject::kfc0 || chicken_threat->GetTypeKfc_() == kfcobject::kfc1)
-										{
-											num_kfc++;
-										}
-										else if (chicken_threat->GetTypeKfc_() == kfcobject::kfc2)
-										{
-											num_kfc += 5;
-										}
-										else if (chicken_threat->GetTypeKfc_() == kfcobject::kfc3)
-										{
-											num_kfc += 10;
-										}
-										chicken_threat->RemoveKfc();
-									}
-								}
-							}
+							check_collision_chicken();
 						}
 
 						if (chicken_died == NUM_CHIKEN1)
@@ -798,6 +933,8 @@ int  main(int arv,char* argv[])
 							if (time_level <= 250)
 							{
 								time_level++;
+								Level == 3 ? circle.SetRect(0, WINDOW_HEIGHT - circle.GetRect().h):circle.SetRect(WINDOW_WIDTH/2-circle.GetRect().w/2, WINDOW_HEIGHT - circle.GetRect().h);
+								circle.Render(renderer);
 							}
 							else
 							{
@@ -806,339 +943,147 @@ int  main(int arv,char* argv[])
 									time_level = 0;
 								}
 								Level++;
+								if (Level == 3)
+								{
+									for (int i = 0; i < NUM_CHIKEN1; i++)
+									{
+										chickenobject1* chicken2 = chicken_.at(i);
+										if (i >= 0 && i <= 4)
+										{
+											chicken2->SetRect(112.5, -i * 80);
+										}
+										else if (i >= 5 && i <= 9)
+										{
+											chicken2->SetRect(212.5, -i * 80);
+										}
+										else if (i >= 10 && i <= 14)
+										{
+											chicken2->SetRect(312.5, -i * 80);
+										}
+										else if (i >= 15 && i <= 19)
+										{
+											chicken2->SetRect(412.5, -i * 80);
+										}
+										else if (i >= 20 && i <= 24)
+										{
+											chicken2->SetRect(512.5, -i * 80);
+										}
+										else if (i >= 25 && i <= 29)
+										{
+											chicken2->SetRect(612.5, -i * 80);
+										}
+										else if (i >= 30 && i <= 34)
+										{
+											chicken2->SetRect(712.5, -i * 80);
+										}
+										else if (i >= 35 && i <= 39)
+										{
+											chicken2->SetRect(812.5, -i * 80);
+										}
+										else if (i >= 40 && i <= 44)
+										{
+											chicken2->SetRect(912.5, -i * 80);
+										}
+										else if (i >= 45 && i <= 49)
+										{
+											chicken2->SetRect(1012.5, -i * 80);
+										}
+										chicken2->SetDownBottom(false);
+										chicken2->SetStatus(true);
+										chicken2->ResetBUllet();
+										chicken2->ResetKfc();
+									}
+								}
+
+								if (Level == 4)
+								{
+									for (int i = 0; i < NUM_CHIKEN1; i++)
+									{
+										chickenobject1* chicken3 = chicken_.at(i);
+										if (i >= 0 && i <= 4)
+										{
+											chicken3->SetRect(112.5, -i * 80);
+										}
+										else if (i >= 5 && i <= 9)
+										{
+											chicken3->SetRect(212.5, (i - 5) * 80 + WINDOW_HEIGHT);
+										}
+										else if (i >= 10 && i <= 14)
+										{
+											chicken3->SetRect(312.5, -(i - 10) * 80);
+										}
+										else if (i >= 15 && i <= 19)
+										{
+											chicken3->SetRect(412.5, (i - 15) * 80 + WINDOW_HEIGHT);
+										}
+										else if (i >= 20 && i <= 24)
+										{
+											chicken3->SetRect(512.5, -(i - 20) * 80);
+										}
+										else if (i >= 25 && i <= 29)
+										{
+											chicken3->SetRect(612.5, (i - 25) * 80 + WINDOW_HEIGHT);
+										}
+										else if (i >= 30 && i <= 34)
+										{
+											chicken3->SetRect(712.5, -(i - 30) * 80);
+										}
+										else if (i >= 35 && i <= 39)
+										{
+											chicken3->SetRect(812.5, (i - 35) * 80 + WINDOW_HEIGHT);
+										}
+										else if (i >= 40 && i <= 44)
+										{
+											chicken3->SetRect(912.5, -(i - 40) * 80);
+										}
+										else if (i >= 45 && i <= 49)
+										{
+											chicken3->SetRect(1012.5, (i - 45) * 80 + WINDOW_HEIGHT);
+										}
+										chicken3->SetDownBottom(false);
+										chicken3->SetStatus(true);
+										chicken3->ResetBUllet();
+										chicken3->ResetKfc();
+									}
+								}
+
+								if (Level == 5)
+								{
+									for (int i = 0; i < 32; i++)
+									{
+										chickenobject1* chicken4 = chicken_.at(i);
+										chicken4->LoadImage("image//chicken_1.png", renderer);
+										if (i >= 0 && i <= 15)
+										{
+											chicken4->SetRect(WINDOW_WIDTH / 2 + chicken4->GetRectChicken().w + 20, -i * 80);
+										}
+										else
+										{
+											chicken4->SetRect(WINDOW_WIDTH / 2 - chicken4->GetRectChicken().w * 2 - 20, -(i - 16) * 80);
+										}
+										chicken4->SetDownBottom(false);
+										chicken4->SetStatus(true);
+										chicken4->ResetBUllet();
+										chicken4->ResetKfc();
+									}
+								}
 						     	chicken_died = 0;
 							}
+						}
+
+						if (chicken_died < NUM_CHIKEN1)
+						{
 							if (Level == 3)
 							{
-								for (int i = 0; i < NUM_CHIKEN1; i++)
-								{
-									chickenobject1* chicken2 = chicken_.at(i);
-									if (i >= 0 && i <= 4)
-									{
-										chicken2->SetRect(112.5, -i * 80);
-									}
-									else if (i >= 5 && i <= 9)
-									{
-										chicken2->SetRect(212.5, -i * 80);
-									}
-									else if (i >= 10 && i <= 14)
-									{
-										chicken2->SetRect(312.5, -i * 80);
-									}
-									else if (i >= 15 && i <= 19)
-									{
-										chicken2->SetRect(412.5, -i * 80);
-									}
-									else if (i >= 20 && i <= 24)
-									{
-										chicken2->SetRect(512.5, -i * 80);
-									}
-									else if (i >= 25 && i <= 29)
-									{
-										chicken2->SetRect(612.5, -i * 80);
-									}
-									else if (i >= 30 && i <= 34)
-									{
-										chicken2->SetRect(712.5, -i * 80);
-									}
-									else if (i >= 35 && i <= 39)
-									{
-										chicken2->SetRect(812.5, -i * 80);
-									}
-									else if (i >= 40 && i <= 44)
-									{
-										chicken2->SetRect(912.5, -i * 80);
-									}
-									else if (i >= 45 && i <= 49)
-									{
-										chicken2->SetRect(1012.5, -i * 80);
-									}
-									chicken2->SetDownBottom(false);
-									chicken2->SetStatus(true);
-									chicken2->ResetBUllet();
-									chicken2->ResetKfc();
-								}
+								check_collision_chicken();
 							}
 
 							if (Level == 4)
 							{
-								for (int i = 0; i < NUM_CHIKEN1; i++)
-								{
-									chickenobject1* chicken3 = chicken_.at(i);
-									if (i >= 0 && i <= 4)
-									{
-										chicken3->SetRect(112.5, -i * 80 - 100);
-									}
-									else if (i >= 5 && i <= 9)
-									{
-										chicken3->SetRect(212.5, (i-5) * 80+WINDOW_HEIGHT);
-									}
-									else if (i >= 10 && i <= 14)
-									{
-										chicken3->SetRect(312.5, -(i-10) * 80);
-									}
-									else if (i >= 15 && i <= 19)
-									{
-										chicken3->SetRect(412.5, (i-15) * 80 + WINDOW_HEIGHT);
-									}
-									else if (i >= 20 && i <= 24)
-									{
-										chicken3->SetRect(512.5, -(i-20) * 80);
-									}
-									else if (i >= 25 && i <= 29)
-									{
-										chicken3->SetRect(612.5, (i-25) * 80 + WINDOW_HEIGHT);
-									}
-									else if (i >= 30 && i <= 34)
-									{
-										chicken3->SetRect(712.5, -(i-30) * 80);
-									}
-									else if (i >= 35 && i <= 39)
-									{
-										chicken3->SetRect(812.5, (i-35) * 80 + WINDOW_HEIGHT);
-									}
-									else if (i >= 40 && i <= 44)
-									{
-										chicken3->SetRect(912.5, -(i-40) * 80);
-									}
-									else if (i >= 45 && i <= 49)
-									{
-										chicken3->SetRect(1012.5, (i-45) * 80 + WINDOW_HEIGHT);
-									}
-									chicken3->SetDownBottom(false);
-									chicken3->SetStatus(true);
-									chicken3->ResetBUllet();
-									chicken3->ResetKfc();
-								}
-							}
-
-							if (Level == 5)
-							{
-								for (int i = 0; i < 24; i++)
-								{
-									chickenobject1* chicken4 = chicken_.at(i);
-									chicken4->LoadImage("chicken_1.png", renderer);
-									if (i >= 0 && i <= 11)
-									{
-										chicken4->SetRect(WINDOW_WIDTH / 2 + chicken4->GetRectChicken().w + 20, -i * 80);
-									}
-									else
-									{
-										chicken4->SetRect(WINDOW_WIDTH / 2 - chicken4->GetRectChicken().w*2 -20, -(i - 12) * 80);
-									}
-									chicken4->SetDownBottom(false);
-									chicken4->SetStatus(true);
-									chicken4->ResetBUllet();
-									chicken4->ResetKfc();
-								}
-							}
-
-						}
-
-						if (Level == 3)
-						{
-							for (int i = 0; i < NUM_CHIKEN1; i++)
-							{
-								chickenobject1* chicken2_ = chicken_.at(i);
-								int t = i%5;
-								chicken2_->MoveLevel3(t);
-								chicken2_->Show(renderer);
-								chicken2_->HandleBullet(renderer);
-								chicken2_->HandleKfc(renderer);
-								
-								//col1
-								std::vector<bulletobject*> bull_list = space.GetBulletList();
-								for (int i = 0; i < space.GetBulletList().size(); i++)
-								{
-									bulletobject* BULLET = bull_list.at(i);
-									bool col1 = check_collision(BULLET->GetRect(), chicken2_->GetRectChicken());
-									if (col1)
-									{
-										if (BULLET->GetBulletType() == ROCKET)
-										{
-											exp_.SetRect(BULLET->GetRect().x - 120, BULLET->GetRect().y - 120);
-											exp_.SetFrame(0);
-										}
-										else
-										{
-											space.RemoveBullet(i);
-										}
-										chicken_died++;
-										chicken2_->SetRect(chicken2_->GetRect().x, WINDOW_HEIGHT);
-										chicken2_->SetStatus(false);
-										if (chicken_died % 20 == 0)
-										{
-											gift.SetIsMoveGift(true);
-											gift.SetY_val(SPEED_GIFT);
-											gift.SetClips();
-											gift.SetGiftType(gift.RandomType());
-											gift.LoadGift(renderer);
-											gift.SetRect(rand() % 1000 + 10, 0);
-										}
-									}
-								}
-
-								//col2
-								bool col2 = check_collision(chicken2_->GetRectChicken(), space.GetRect());
-								if (col2)
-								{
-									chicken_died++;
-									chicken2_->SetRect(chicken2_->GetRect().x, WINDOW_HEIGHT);
-									chicken2_->SetStatus(false);
-									exp_.SetRect(space.GetRect().x-100, space.GetRect().y-100);
-									exp_.SetFrame(0);
-									space.SetStatus(false);
-									space.SetRect(-space.GetRect().w, -space.GetRect().h);
-									space.decrease();
-									if (bullet_level >= 1)
-									{
-										bullet_level--;
-									}
-								}
-
-								//col3
-								std::vector<bulletobject*> bull_list_chick = chicken2_->GetBulletList();
-								for (int i = 0; i < bull_list_chick.size(); i++)
-								{
-									bulletobject* bullet_Chicken = bull_list_chick.at(i);
-									bool col3 = check_collision(bullet_Chicken->GetRect(), space.GetRect());
-									if (col3)
-									{
-										bullet_Chicken->SetIsMove(false);
-										exp_.SetRect(space.GetRect().x-100, space.GetRect().y-100);
-										exp_.SetFrame(0);
-										space.SetStatus(false);
-										space.SetRect(-space.GetRect().w, -space.GetRect().h);
-										space.decrease();
-										if (bullet_level >= 1)
-										{
-											bullet_level--;
-										}
-									}
-								}
-
-								//col4
-								bool col4 = check_collision(chicken2_->GetRectKfc(), space.GetRect());
-								if (col4)
-								{
-									if (chicken2_->GetTypeKfc_() == kfcobject::kfc0 || chicken2_->GetTypeKfc_() == kfcobject::kfc1)
-									{
-										num_kfc++;
-									}
-									else if (chicken2_->GetTypeKfc_() == kfcobject::kfc2)
-									{
-										num_kfc += 5;
-									}
-									else if (chicken2_->GetTypeKfc_() == kfcobject::kfc3)
-									{
-										num_kfc += 10;
-									}
-									chicken2_->RemoveKfc();
-								}
+								check_collision_chicken();
 							}
 						}
 
-						if (Level == 4)
-						{
-							for (int i = 0; i < NUM_CHIKEN1; i++)
-							{
-								chickenobject1* chicken3_ = chicken_.at(i);
-								chicken3_->MoveLevel4();
-								chicken3_->Show(renderer);
-								chicken3_->HandleBullet(renderer);
-								chicken3_->HandleKfc(renderer);
-
-								//col1
-								std::vector<bulletobject*> bull_list = space.GetBulletList();
-								for (int i = 0; i < space.GetBulletList().size(); i++)
-								{
-									bulletobject* BULLET = bull_list.at(i);
-									bool col1 = check_collision(BULLET->GetRect(), chicken3_->GetRectChicken());
-									if (col1)
-									{
-										if (BULLET->GetBulletType() == ROCKET)
-										{
-											exp_.SetRect(BULLET->GetRect().x - 120, BULLET->GetRect().y - 120);
-											exp_.SetFrame(0);
-										}
-										else
-										{
-											space.RemoveBullet(i);
-										}
-										chicken_died++;
-										chicken3_->SetRect(chicken3_->GetRect().x, WINDOW_HEIGHT);
-										chicken3_->SetStatus(false);
-										if (chicken_died % 20 == 0)
-										{
-											gift.SetIsMoveGift(true);
-											gift.SetY_val(SPEED_GIFT);
-											gift.SetClips();
-											gift.SetGiftType(gift.RandomType());
-											gift.LoadGift(renderer);
-											gift.SetRect(rand() % 1000 + 10, 0);
-										}
-									}
-								}
-
-								//col2
-								bool col2 = check_collision(chicken3_->GetRectChicken(), space.GetRect());
-								if (col2)
-								{
-									chicken_died++;
-									chicken3_->SetRect(chicken3_->GetRect().x, WINDOW_HEIGHT);
-									chicken3_->SetStatus(false);
-									exp_.SetRect(space.GetRect().x-100, space.GetRect().y-100);
-									exp_.SetFrame(0);
-									space.SetStatus(false);
-									space.SetRect(-space.GetRect().w, -space.GetRect().h);
-									space.decrease();
-									if (bullet_level >= 1)
-									{
-										bullet_level--;
-									}
-								}
-
-								//col3
-								std::vector<bulletobject*> bull_list_chick = chicken3_->GetBulletList();
-								for (int i = 0; i < bull_list_chick.size(); i++)
-								{
-									bulletobject* bullet_Chicken = bull_list_chick.at(i);
-									bool col3 = check_collision(bullet_Chicken->GetRect(), space.GetRect());
-									if (col3)
-									{
-										bullet_Chicken->SetIsMove(false);
-										exp_.SetRect(space.GetRect().x-100, space.GetRect().y-100);
-										exp_.SetFrame(0);
-										space.SetStatus(false);
-										space.SetRect(-space.GetRect().w, -space.GetRect().h);
-										space.decrease();
-										if (bullet_level >= 1)
-										{
-											bullet_level--;
-										}
-									}
-								}
-
-								//col4
-								bool col4 = check_collision(chicken3_->GetRectKfc(), space.GetRect());
-								if (col4)
-								{
-									if (chicken3_->GetTypeKfc_() == kfcobject::kfc0 || chicken3_->GetTypeKfc_() == kfcobject::kfc1)
-									{
-										num_kfc++;
-									}
-									else if (chicken3_->GetTypeKfc_() == kfcobject::kfc2)
-									{
-										num_kfc += 5;
-									}
-									else if (chicken3_->GetTypeKfc_() == kfcobject::kfc3)
-									{
-										num_kfc += 10;
-									}
-									chicken3_->RemoveKfc();
-								}
-							}
-						}
 						if (Level == 5)
 						{
 							if (is_run_boss == true)
@@ -1149,259 +1094,227 @@ int  main(int arv,char* argv[])
 								if (run + SPEED_RUN_SKIP >= 0)
 								{
 									is_run_boss = false;
+									music_start = Mix_LoadMUS("sound//level5.wav");
+									Mix_PlayMusic(music_start, -1);
 								}
 							}
 							else
 							{
 								background.Render(renderer);
-
-								boss_.Show(renderer);
-								for (int i = 0; i < NUM_IRON; i++)
+								
+								if (iron_died < 44)
 								{
-									ironobject* iron1 = iron_.at(i);
-									if (i >= 0 && i <= 9)
+									for (int i = 0; i < NUM_IRON; i++)
 									{
-										iron1->HandleMove1(i);
-									}
-									else if (i >= 10 && i <= 19)
-									{
-										int t = i % 9;
-										iron1->HandleMove2(t);
-									}
-									else if (i >= 20 && i <= 31)
-									{
-										int u = i - 20;
-										iron1->HandleMove3(u);
-									}
-									else if (i >= 32 && i <= 43)
-									{
-										int u = i - 32;
-										iron1->HandleMove4(u);
-									}
-									iron1->Show(renderer,SDL_FLIP_NONE);
-
-									//check col1
-								    std::vector<bulletobject*> bull_list = space.GetBulletList();
-									for (int t = 0; t < bull_list.size(); t++)
-									{
-										bulletobject* BULLET = bull_list.at(t);
-										bool col1 = check_collision(BULLET->GetRect(), iron1->GetRect());
-										if (col1)
+										ironobject* iron1 = iron_.at(i);
+										if (i >= 0 && i <= 9)
 										{
-											if (BULLET->GetBulletType() == ROCKET)
-											{
-												exp_.SetRect(BULLET->GetRect().x - 120, BULLET->GetRect().y - 120);
-												exp_.SetFrame(0);
-											}
-											else
-											{
-												space.RemoveBullet(t);
-											}
-											iron1->Deacrase();
+											iron1->HandleMove1(i);
+										}
+										else if (i >= 10 && i <= 19)
+										{
+											int t = i % 9;
+											iron1->HandleMove2(t);
+										}
+										else if (i >= 20 && i <= 31)
+										{
+											int u = i - 20;
+											iron1->HandleMove3(u);
+										}
+										else if (i >= 32 && i <= 43)
+										{
+											int u = i - 32;
+											iron1->HandleMove4(u);
+										}
+										iron1->Show(renderer, SDL_FLIP_NONE);
 
-											if (iron1->GetHeart() <= 2 && iron1->GetHeart() > 0)
+										//check col1
+										std::vector<bulletobject*> bull_list = space.GetBulletList();
+										for (int t = 0; t < bull_list.size(); t++)
+										{
+											bulletobject* BULLET = bull_list.at(t);
+											bool col1 = check_collision(BULLET->GetRect(), iron1->GetRect());
+											if (col1)
 											{
-												if (i >= 0 && i <= 9)
+												if (BULLET->GetBulletType() == ROCKET)
 												{
-													iron1->LoadImage("iron1_1.png", renderer);
-												}
-												else if (i >= 10 && i <= 19)
-												{
-													iron1->LoadImage("iron2_1.png", renderer);
+													exp_.SetRect(BULLET->GetRect().x - 120, BULLET->GetRect().y - 120);
+													exp_.SetFrame(0);
+													Mix_PlayChannel(-1, sound_expRocket, 0);
 												}
 												else
 												{
-													iron1->LoadImage("iron0_1.png", renderer);
+													space.RemoveBullet(t);
+													Mix_PlayChannel(-1, sound_iron, 0);
+												}
+												iron1->Deacrase();
+
+												if (iron1->GetHeart() <= 2 && iron1->GetHeart() > 0)
+												{
+													if (i >= 0 && i <= 9)
+													{
+														iron1->LoadImage("image//iron1_1.png", renderer);
+													}
+													else if (i >= 10 && i <= 19)
+													{
+														iron1->LoadImage("image//iron2_1.png", renderer);
+													}
+													else
+													{
+														iron1->LoadImage("image//iron0_1.png", renderer);
+													}
+												}
+												else if (iron1->GetHeart() == 0)
+												{
+													iron_died++;
+													iron1->SetRect(iron1->GetRect().w, WINDOW_HEIGHT);
+													iron1->SetStatus(false);
 												}
 											}
-											else if (iron1->GetHeart() == 0)
-											{
-												iron1->SetRect(-iron1->GetRect().w, WINDOW_HEIGHT);
-												iron1->SetStatus(false);
-											}
 										}
-									}
-								
-									//col2
-									bool col2 = check_collision(iron1->GetRect(), space.GetRect());
-									if (col2)
-									{
-										iron1->SetStatus(false);
-										iron1->SetRect(-iron1->GetRect().w, WINDOW_HEIGHT);
-										exp_.SetRect(space.GetRect().x - 100, space.GetRect().y - 100);
-										exp_.SetFrame(0);
-										space.SetStatus(false);
-										space.SetRect(-space.GetRect().w, -space.GetRect().h);
-										space.decrease();
-										if (bullet_level >= 1)
+
+										//col2
+										bool col2 = check_collision(iron1->GetRect(), space.GetRect());
+										if (col2)
 										{
-											bullet_level--;
-										}
-									}
-
-								}
-
-								for (int i = 0; i < 24; i++)
-								{
-									chickenobject1* chicken4_ = chicken_.at(i);
-									if (0 <= i && i <= 11)
-									{
-										chicken4_->MoveLevel5_0(i);
-									}
-									else
-									{
-										chicken4_->MoveLevel5_1(i-12);
-									}
-									chicken4_->Show(renderer);
-									chicken4_->HandleBullet(renderer);
-									chicken4_->HandleKfc(renderer);
-
-									//col1
-									std::vector<bulletobject*> bull_list = space.GetBulletList();
-									for (int i = 0; i < space.GetBulletList().size(); i++)
-									{
-										bulletobject* BULLET = bull_list.at(i);
-										bool col1 = check_collision(BULLET->GetRect(), chicken4_->GetRectChicken());
-										if (col1)
-										{
-											if (BULLET->GetBulletType() == ROCKET)
-											{
-												exp_.SetRect(BULLET->GetRect().x - 120, BULLET->GetRect().y - 120);
-												exp_.SetFrame(0);
-											}
-											else
-											{
-												space.RemoveBullet(i);
-											}
-											chicken_died++;
-											chicken4_->SetRect(chicken4_->GetRect().x, WINDOW_HEIGHT);
-											chicken4_->SetStatus(false);
-											if (chicken_died % 20 == 0)
-											{
-												gift.SetIsMoveGift(true);
-												gift.SetY_val(SPEED_GIFT);
-												gift.SetClips();
-												gift.SetGiftType(gift.RandomType());
-												gift.LoadGift(renderer);
-												gift.SetRect(rand() % 1000 + 10, 0);
-											}
-										}
-									}
-
-									//col2
-									bool col2 = check_collision(chicken4_->GetRectChicken(), space.GetRect());
-									if (col2)
-									{
-										chicken_died++;
-										chicken4_->SetRect(chicken4_->GetRect().x, WINDOW_HEIGHT);
-										chicken4_->SetStatus(false);
-										exp_.SetRect(space.GetRect().x - 100, space.GetRect().y - 100);
-										exp_.SetFrame(0);
-										space.SetStatus(false);
-										space.SetRect(-space.GetRect().w, -space.GetRect().h);
-										space.decrease();
-										if (bullet_level >= 1)
-										{
-											bullet_level--;
-										}
-									}
-
-									//col3
-									std::vector<bulletobject*> bull_list_chick = chicken4_->GetBulletList();
-									for (int i = 0; i < bull_list_chick.size(); i++)
-									{
-										bulletobject* bullet_Chicken = bull_list_chick.at(i);
-										bool col3 = check_collision(bullet_Chicken->GetRect(), space.GetRect());
-										if (col3)
-										{
-											bullet_Chicken->SetIsMove(false);
+											Mix_PlayChannel(-1, sound_exp, 0);
+											iron1->SetStatus(false);
+											iron1->SetRect(iron1->GetRect().w, WINDOW_HEIGHT);
 											exp_.SetRect(space.GetRect().x - 100, space.GetRect().y - 100);
 											exp_.SetFrame(0);
 											space.SetStatus(false);
-											space.SetRect(-space.GetRect().w, -space.GetRect().h);
+											space.SetRect(-space.GetRect().w, WINDOW_HEIGHT);
 											space.decrease();
+											if (space.GetHeart() == 0)
+											{
+												music_start = Mix_LoadMUS("sound//gameover.wav");
+												Mix_PlayMusic(music_start, -1);
+											}
 											if (bullet_level >= 1)
 											{
 												bullet_level--;
 											}
 										}
-									}
 
-									//col4
-									bool col4 = check_collision(chicken4_->GetRectKfc(), space.GetRect());
-									if (col4)
-									{
-										if (chicken4_->GetTypeKfc_() == kfcobject::kfc0 || chicken4_->GetTypeKfc_() == kfcobject::kfc1)
+										if (chicken_died == 32)
 										{
-											num_kfc++;
+											iron_died = 44;
+											iron1->SetStatus(false);
+											iron1->SetRect(iron1->GetRect().w, WINDOW_HEIGHT);
 										}
-										else if (chicken4_->GetTypeKfc_() == kfcobject::kfc2)
-										{
-											num_kfc += 5;
-										}
-										else if (chicken4_->GetTypeKfc_() == kfcobject::kfc3)
-										{
-											num_kfc += 10;
-										}
-										chicken4_->RemoveKfc();
+
 									}
 								}
 
-								//check_col_boss1
-								std::vector<bulletobject*> bullet_list = space.GetBulletList();
-								for (int t = 0; t < bullet_list.size(); t++)
+								if (chicken_died < 32)
 								{
-									bulletobject* BULLET = bullet_list.at(t);
-									bool colboss1 = check_collision(boss_.GetRectBoss(), BULLET->GetRect());
-									if (colboss1)
-									{
-										if (BULLET->GetBulletType() == ROCKET)
-										{
-											exp_.SetRect(BULLET->GetRect().x - 120, BULLET->GetRect().y - 120);
-											exp_.SetFrame(0);
-										}
-										else
-										{
-											space.RemoveBullet(t);
-										}
-										boss_.Decrease();
-										if (boss_.GetHeart() == 0)
-										{
-											exp_.SetRect(boss_.GetRect().x - 100, boss_.GetRect().y - 100);
-											exp_.SetFrame(0);
-											boss_.SetRect(boss_.GetRect().w, WINDOW_HEIGHT);
-											boss_.SetStatus(false);
-										}
-
-									}
-
+									check_collision_chicken();
 								}
-								//check_col_boss2
-								bool colboss2 = check_collision(boss_.GetRectBoss(), space.GetRect());
-								if (colboss2)
+
+								if (chicken_died == 32)
 								{
-									boss_.Decrease();
-									if (boss_.GetHeart() == 0)
+									for (int i = 0; i < NUM_BOSS; i++)
 									{
-										exp_.SetRect(boss_.GetRect().x - 100, boss_.GetRect().y - 100);
-										exp_.SetFrame(0);
-										boss_.SetRect(boss_.GetRect().w, WINDOW_HEIGHT);
-										boss_.SetStatus(false);
-									}
-									exp_.SetRect(space.GetRect().x - 100, space.GetRect().y - 100);
-									exp_.SetFrame(0);
-									space.SetStatus(false);
-									space.SetRect(-space.GetRect().w, -space.GetRect().h);
-									space.decrease();
-									if (bullet_level >= 1)
-									{
-										bullet_level--;
+										bossobject* boss1 = boss_.at(i);
+										boss1->Show(renderer);
+										boss1->ShowHeart(renderer, boss1->GetHeart());
+										boss1->HandleBoss();
+										boss1->HandleBullet(renderer,boss1->GetRectBoss(),space.GetRect());
+
+										std::vector<bulletobject*> bullet_list = space.GetBulletList();
+										for (int t = 0; t < bullet_list.size(); t++)
+										{
+											bulletobject* BULLET = bullet_list.at(t);
+											bool colboss1 = check_collision(boss1->GetRectBoss(), BULLET->GetRect());
+											if (colboss1)
+											{
+												if (BULLET->GetBulletType() == ROCKET)
+												{
+													exp_.SetRect(BULLET->GetRect().x - 120, BULLET->GetRect().y - 120);
+													exp_.SetFrame(0);
+													Mix_PlayChannel(-1, sound_expRocket, 0);
+													boss1->SetHeart(boss1->GetHeart() - 5);
+												}
+												else
+												{
+												    boss1->Decrease();
+												}
+												space.RemoveBullet(t);
+												if (boss1->GetHeart() == 0)
+												{
+													boss_died++;
+													exp_.SetRect(boss1->GetRect().x - 100, boss1->GetRect().y - 100);
+													exp_.SetFrame(0);
+													Mix_PlayChannel(-1, sound_expBoss, 0);
+													boss1->SetRect(boss1->GetRect().w, WINDOW_HEIGHT);
+													boss1->SetStatus(false);
+												}
+											}
+
+										}
+
+										//check_col_boss2
+										bool colboss2 = check_collision(boss1->GetRectBoss(), space.GetRect());
+										if (colboss2)
+										{
+											Mix_PlayChannel(-1, sound_exp, 0);
+											boss1->Decrease();
+											if (boss1->GetHeart() == 0)
+											{
+												exp_.SetRect(boss1->GetRect().x - 100, boss1->GetRect().y - 100);
+												exp_.SetFrame(0);
+												boss1->SetRect(boss1->GetRect().w, WINDOW_HEIGHT);
+												boss1->SetStatus(false);
+											}
+											exp_.SetRect(space.GetRect().x - 100, space.GetRect().y - 100);
+											exp_.SetFrame(0);
+											space.SetStatus(false);
+											space.SetRect(-space.GetRect().w,  WINDOW_HEIGHT);
+											space.decrease();
+											if (space.GetHeart() == 0)
+											{
+												music_start = Mix_LoadMUS("sound//gameover.wav");
+												Mix_PlayMusic(music_start, -1);
+											}
+											if (bullet_level >= 1)
+											{
+												bullet_level--;
+											}
+										}
+
+										//check_col_boss3
+										std::vector<bulletobject*> bull_list_boss = boss1->GetBulletList();
+										for (int i = 0; i < bull_list_boss.size(); i++)
+										{
+											bulletobject* bullet_boss = bull_list_boss.at(i);
+											bool col3 = check_collision(bullet_boss->GetRect(), space.GetRect());
+											if (col3)
+											{
+												bullet_boss->SetIsMove(false);
+												Mix_PlayChannel(-1, sound_exp, 0);
+												exp_.SetRect(space.GetRect().x - 100, space.GetRect().y - 100);
+												exp_.SetFrame(0);
+												space.SetStatus(false);
+												space.SetRect(-space.GetRect().w, WINDOW_HEIGHT);
+												space.decrease();
+												if (space.GetHeart() == 0)
+												{
+													music_start = Mix_LoadMUS("sound//gameover.wav");
+													Mix_PlayMusic(music_start, -1);
+												}
+												if (bullet_level >= 1)
+												{
+													bullet_level--;
+												}
+											}
+
 									}
 								}
 
 							}
 						}
 					}
+			}
 
 				space.Move();
 				space.Show(renderer);
@@ -1418,6 +1331,7 @@ int  main(int arv,char* argv[])
 					bool colgift = check_collision(gift.GetRectGift(), space.GetRect());
 					if (colgift)
 					{
+						Mix_PlayChannel(-1, sound_click, 0);
 						gift.SetIsMoveGift(false);
 						gift.SetRect(-gift.GetRect().w, -gift.GetRect().h);
 						if (gift.GetGiftType() == HEART)
@@ -1456,7 +1370,7 @@ int  main(int arv,char* argv[])
 					}
 					else
 					{
-						if (time_end_game <= 300)
+						if (time_end_game <= 500)
 						{
 							time_end_game++;
 							text_end.SetText("Game Over !");
@@ -1466,29 +1380,35 @@ int  main(int arv,char* argv[])
 						}
 						else
 						{
-							reset();
-							menu("Play Again !");
+							music_start = Mix_LoadMUS("sound//start.mp3");
 							menu_Run = true;
+							text_option[theOption].SetTextColor(textobject::BLUE_TYPE);
+							theOption = 0;
+							menu("Play Again !");
+							reset();
 						}
 					}
 				}
 				else
 				{
-					if (boss_.GetHeart() == 0)
+					if (boss_died == NUM_BOSS)
 					{
 						if (time_end_game <= 300)
 						{
 							time_end_game++;
-							text_end.SetText("Win !!!");
+							text_end.SetText("Victory !!!");
 							text_end.ShowText(font_end, renderer);
 							text_end.SetRect((WINDOW_WIDTH - text_end.GetRect().w) / 2, (WINDOW_HEIGHT - text_end.GetRect().h) / 2);
 							text_end.Render(renderer);
 						}
 						else
 						{
-							reset();
-							menu("Play Again !");
+							music_start = Mix_LoadMUS("sound//start.mp3");
 							menu_Run = true;
+							text_option[theOption].SetTextColor(textobject::BLUE_TYPE);
+							theOption = 0;
+							menu("Play Again !");
+							reset();
 						}
 					}
 				}
@@ -1515,7 +1435,7 @@ int  main(int arv,char* argv[])
 				text_heart.SetRect(60, 10);
 				text_heart.Render(renderer);
 
-				skill_heart.LoadImage("skill_heart.png", renderer);
+				skill_heart.LoadImage("image//skill_heart.png", renderer);
 				skill_heart.SetRect(10, 0);
 				skill_heart.Render(renderer);
 				std::string bullet_lev = std::to_string(bullet_level);
@@ -1527,13 +1447,13 @@ int  main(int arv,char* argv[])
 
 				if (is_run)
 				{
-				stone_small.LoadImage("threat_small_.png", renderer);
+				stone_small.LoadImage("image//threat_small_.png", renderer);
 				std::string num_threat_ = std::to_string(num_stone_died);
 				text_stone_died.SetText(str_ + num_threat_);
 				}
 				else
 				{
-					stone_small.LoadImage("kfc.png", renderer);
+					stone_small.LoadImage("image//kfc.png", renderer);
 					std::string num_threat_ = std::to_string(num_kfc);
 					text_stone_died.SetText(str_ + num_threat_);
 

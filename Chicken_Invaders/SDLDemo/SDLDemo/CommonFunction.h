@@ -28,6 +28,7 @@ const int LEVEL_UP = 4;
 const int NUM_STONE_THREAT = 50;
 const int NUM_CHIKEN1 = 50;
 const int NUM_IRON = 44;
+const int NUM_BOSS = 2;
 
 const int SPEED_THREAT_STONE = 5;
 const int SPEED_CHICKEN = 5;
@@ -35,6 +36,7 @@ const int SPEED_CHICKEN_BULLET = 3;
 const int SPEED_BOSS_BULLET = 10;
 const int SPEED_KFC = 6;
 const int SPEED_IRON = 10;
+const int SPEED_BOSS = 5;
 enum BULLET_SPEED
 {
 	BLASTER_SPEED = 12,
@@ -51,7 +53,13 @@ const int space_heart = 5;
 const int iron_heart = 5;
 const int boss_heart = 50;
 
-
+struct bossStatus
+{
+	int turn_right;
+	int turn_left;
+	int turn_down;
+	int turn_up;
+};
 
 
 #endif

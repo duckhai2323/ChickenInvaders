@@ -16,7 +16,7 @@ public:
 	spaceobject();
 	~spaceobject();
 
-	void InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_level);
+	void InputAction(SDL_Event e,SDL_Renderer* renderer,int bullet_level,Mix_Chunk* sound_bullet[3],Mix_Chunk* sound_return);
 	void Move();
 	void Show(SDL_Renderer* renderer);
 
